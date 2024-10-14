@@ -1,0 +1,13 @@
+name: Notify Slack on Push
+on: push
+jobs:
+  slack_notification:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Send Slack notification
+      run: |
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"New push: $COMMIT_MESSAGE\"}" ${{ secrets.SLACK_WEBHOOK_URL }}
