@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+  </head>
+
+  <body>
+    <h1>Search Results for "{{ keyword }}"</h1>
+
+    <!-- 유사한 검색어 추천 -->
+    {% if similar_disease_names or similar_insurance_categories %}
+      <h2>Did you mean:</h2>
+      <ul>
+        {% for name in similar_disease_names %}
+          <li>
+            <a href="{% url 'search' %}?keyword={{ name }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+        {% for category in similar_insurance_categories %}
+          <li>
+            <a href="{% url 'search' %}?keyword={{ category }}">{{ category }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <!-- 검색 결과가 있는 경우 테이블로 출력 -->
+    {% if insurance_categories or insurance_sub_categories or disease_categories or disease_sub_categories or disease_codes %}
+      <table>
+        <thead>
+          <tr>
+            <th>Insurance Category</th>
+            <th>Insurance SubCategory</th>
+            <th>Disease Category</th>
+            <th>Disease SubCategory</th>
+            <th>Disease Code</th>
+            <th>Disease Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Insurance Categories 결과 표시 -->
+          {% for category in insurance_categories %}
+            <tr>
+              <td>{{ category.name }}</td>
+              <td>
+                {% for sub_category in insurance_sub_categories %}
+                  {{ sub_category.name }}
+                  ({{ sub_category.category.name }})
+                  {% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                {% for disease_category in disease_categories %}
+                  {{ disease_category.name }}
+                  {% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                {% for disease_sub_category in disease_sub_categories %}
+                  {{ disease_sub_category.name }}
+                  ({{ disease_sub_category.category.name }})
+                  {% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                {% for code in disease_codes %}
+                  {{ code.sub_code }}
+                  {% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                {% for code in disease_codes %}
+                  {{ code.disease_name }}
+                  {% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <!-- 검색 결과가 없을 때 메시지 -->
+      <p>No results found for "{{ keyword }}"</p>
+    {% endif %}
+
+    <!-- 중분류에 하위 상병 코드가 없는 경우도 추가 -->
+    {% if no_sub_disease_codes %}
+      <table>
+        <thead>
+          <tr>
+            <th>Insurance SubCategory</th>
+            <th>Disease SubCategory</th>
+            <th>No sub-level Disease Codes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub_category in no_sub_disease_codes %}
+            <tr>
+              <td>{{ sub_category.name }}</td>
+              <td>{{ sub_category.name }}
+                ({{ sub_category.category.name }})</td>
+              <td>No sub-level disease codes</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </body>
+
+</html>

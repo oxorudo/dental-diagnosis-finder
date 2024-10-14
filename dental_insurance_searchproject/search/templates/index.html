@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+  </head>
+
+  <body>
+    <h1>Search</h1>
+
+    <!-- 검색 폼 -->
+    <form action="{% url 'search' %}" method="get">
+      <input type="text" name="keyword" placeholder="Enter a keyword">
+      <button type="submit">Search</button>
+    </form>
+
+    <!-- 클릭 가능한 상병코드 대분류 리스트 -->
+    <h2>Main Disease Codes</h2>
+    <ul>
+      {% for disease in main_disease_codes %}
+        <li>
+          <a href="{% url 'search' %}?keyword={{ disease.code }}">{{ disease.code }}
+            {{ disease.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </body>
+
+</html>
