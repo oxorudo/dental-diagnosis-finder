@@ -10,4 +10,7 @@ jobs:
     - name: Send Slack notification
       run: |
         COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"New push: $COMMIT_MESSAGE\"}" ${{ secrets.SLACK_WEBHOOK_URL }}
+        AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+        curl -X POST -H 'Content-type: application/json' --data "{
+          \"text\":\":rocket: *New Push by [$AUTHOR_NAME]*\n\n\`\`\`$COMMIT_MESSAGE\`\`\`\"
+        }" ${{ secrets.SLACK_WEBHOOK_URL }}
