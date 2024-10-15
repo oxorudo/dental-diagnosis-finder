@@ -84,3 +84,13 @@ ul li a {
 ul li a:hover {
     text-decoration: underline;
 }
+
+/* 드롭다운 스타일 */
+.subcategory, .detailcode {
+    display: none;  /* 중분류와 하위분류는 기본적으로 숨김 */
+    margin-left: 20px;  /* 들여쓰기 추가 */
+}
+
+.subcategory.show, .detailcode.show {
+    display: block;  /* show 클래스를 추가하면 보이기 */
+}

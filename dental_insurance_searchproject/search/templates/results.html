@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results for "{{ keyword }}"</title>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
-    <!-- CSS 파일 연결 -->
   </head>
 
   <body>
@@ -18,12 +17,12 @@
         <ul>
           {% for disease in disease_categories_list %}
             <li>
-              <a href="{% url 'search' %}?keyword={{ disease.incomplete_code }}">{{ disease.incomplete_code }}
-                {{ disease.incomplete_name }}</a>
+              <a href="{% url 'search' %}?keyword={{ disease.code }}">{{ disease.code }}
+                {{ disease.name }}</a>
               <ul>
-                {% for sub in disease.diseasesubcategory_set.all %}
+                {% for sub in disease.children.all %}
                   <li style="margin-left: 20px;">
-                    <a href="{% url 'search' %}?keyword={{ sub.sub_code }}">{{ sub.sub_code }}
+                    <a href="{% url 'search' %}?keyword={{ sub.code }}">{{ sub.code }}
                       {{ sub.name }}</a>
                   </li>
                 {% endfor %}
@@ -45,7 +44,7 @@
         <!-- 검색어가 있는 경우에만 검색 결과를 확인 -->
         {% if keyword %}
           <!-- 검색 결과가 있는 경우 테이블로 출력 -->
-          {% if insurance_categories or insurance_sub_categories or disease_categories or disease_sub_categories or disease_codes %}
+          {% if search_results %}
             <table>
               <thead>
                 <tr>
@@ -58,37 +57,15 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- 보험 카테고리 결과 표시 -->
-                {% for category in insurance_categories %}
+                {% for result in search_results %}
                   <tr>
-                    <td>{{ category.name }}</td>
+                    <td>{{ result.parent.code if result.parent else '' }}</td>
+                    <td>{{ result.code if result.level == '중분류' else '' }}</td>
+                    <td>{{ result.name }}</td>
+                    <td>{{ result.code }}</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                      <a href="{{ category.url }}">링크</a>
-                      <!-- 보험 링크 추가 -->
-                    </td>
-                  </tr>
-                {% endfor %}
-
-                <!-- 상병 코드 결과 표시 -->
-                {% for disease_code in disease_codes %}
-                  <tr>
-                    <td></td>
-                    <!-- 상병명 대분류 -->
-                    <td></td>
-                    <!-- 상병명 중분류 -->
-                    <td>{{ disease_code.detail_name }}</td>
-                    <!-- 상병명 하위분류 (병명) -->
-                    <td>{{ disease_code.detail_code }}</td>
-                    <!-- 상병 코드 하위분류 -->
-                    <td></td>
-                    <!-- 상세설명 -->
                     <td>
                       <a href="#">링크</a>
-                      <!-- 필요에 따라 링크 추가 -->
                     </td>
                   </tr>
                 {% endfor %}
@@ -108,7 +85,6 @@
           {% endif %}
         {% else %}
           <p>Please enter a keyword to search.</p>
-          <!-- 검색어가 없을 때 메시지 -->
         {% endif %}
       </div>
     </div>
