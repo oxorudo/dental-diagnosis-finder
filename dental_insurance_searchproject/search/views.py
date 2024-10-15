@@ -6,91 +6,149 @@ from .models import (
     DiseaseCategory,
     DiseaseSubCategory,
 )
-from fuzzywuzzy import fuzz
+from transformers import AutoTokenizer, AutoModel
+import faiss
+import torch
+from rapidfuzz import process, fuzz
+from soynlp.word import WordExtractor
+import difflib
+
+# KoELECTRA 모델 및 토크나이저 로드
+model_name = "jhgan/ko-sroberta-multitask"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModel.from_pretrained(model_name)
 
 
-# 오탈자 교정 함수 (다중 추천 기능 추가)
-def get_similar_choices(query, choices, threshold=80):
-    """
-    주어진 선택 항목에서 사용자의 입력(query)에 유사한 여러 항목을 반환
-    :param query: 사용자 검색어
-    :param choices: 데이터베이스에서 가져온 항목들 (예: 상병명, 카테고리명 등)
-    :param threshold: 유사도 점수의 기준 (기본 80 이상)
-    :return: 유사한 항목들의 리스트
-    """
-    similar_choices = []
-    for choice in choices:
-        score = fuzz.ratio(query.lower(), choice.lower())  # 유사도 계산
-        if score >= threshold:  # 설정한 유사도 기준을 넘는 항목만 추천
-            similar_choices.append(choice)
-    return similar_choices
+# 텍스트를 임베딩으로 변환하는 함수
+def get_embeddings(texts):
+    inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    return outputs.last_hidden_state[:, 0, :].numpy()  # [CLS] 토큰 벡터만 사용
+
+
+# FAISS 인덱스 생성 및 데이터 추가
+def build_faiss_index(data):
+    embeddings = get_embeddings(data)
+    dimension = embeddings.shape[1]  # KoELECTRA 임베딩 차원
+    index = faiss.IndexFlatL2(dimension)
+    index.add(embeddings)  # 데이터베이스 임베딩 추가
+    return index, embeddings
+
+
+# 유사 항목 찾기 (FAISS 및 코사인 유사도)
+def search_similar(query, data, index, embeddings, top_k=5):
+    query_embedding = get_embeddings([query])
+    distances, indices = index.search(query_embedding, top_k)
+    similar_items = [data[i] for i in indices[0]]  # 상위 유사 항목 추출
+    return similar_items
+
+
+# 사전 구축 (기존 데이터로)
+def build_dictionary(data):
+    word_extractor = WordExtractor()
+    word_extractor.train(data)
+    word_score_table = word_extractor.extract()
+    return word_score_table
+
+
+# 오탈자 교정 함수
+def correct_typo(input_word, dictionary):
+    closest_matches = difflib.get_close_matches(input_word, dictionary, n=3, cutoff=0.5)
+    if closest_matches:
+        corrected_word = closest_matches[0]  # 가장 유사한 단어 선택
+        suggestions = closest_matches  # 제안 목록
+    else:
+        corrected_word = input_word
+        suggestions = []
+    return corrected_word, suggestions
 
 
 def search(request):
-    keyword = request.GET.get("keyword", "")  # GET 요청에서 검색어를 받음
+    keyword = request.GET.get("keyword", "").strip()  # 검색어를 받아오고 공백 제거
 
-    # 데이터베이스에서 카테고리 및 상병명 리스트 가져오기
-    disease_names = DiseaseDetailCode.objects.values_list("detail_name", flat=True)
-    insurance_categories = InsuranceCategory.objects.values_list("name", flat=True)
-
-    # 오탈자 교정된 상병명과 보험 카테고리명 (유사 항목 추천)
-    similar_disease_names = get_similar_choices(keyword, disease_names)
-    similar_insurance_categories = get_similar_choices(keyword, insurance_categories)
-
-    # 보험 카테고리에서 검색
-    insurance_categories = InsuranceCategory.objects.filter(name__icontains=keyword)
-    insurance_sub_categories = InsuranceSubCategory.objects.filter(
-        name__icontains=keyword
+    # DiseaseDetailCode와 InsuranceCategory에서 가능한 모든 단어 데이터 리스트
+    disease_names = list(
+        DiseaseDetailCode.objects.values_list("detail_name", flat=True)
+    )
+    insurance_categories = list(
+        InsuranceCategory.objects.values_list("name", flat=True)
+    )
+    insurance_sub_categories = list(
+        InsuranceSubCategory.objects.values_list("name", flat=True)
+    )
+    disease_categories = list(
+        DiseaseCategory.objects.values_list("incomplete_name", flat=True)
+    )
+    disease_sub_categories = list(
+        DiseaseSubCategory.objects.values_list("name", flat=True)
     )
 
-    # 상병코드 카테고리에서 검색
-    disease_categories = DiseaseCategory.objects.filter(
-        incomplete_name__icontains=keyword
+    # 오탈자 교정을 위한 전체 단어 리스트
+    word_score_table = (
+        disease_names
+        + insurance_categories
+        + insurance_sub_categories
+        + disease_categories
+        + disease_sub_categories
     )
-    disease_sub_categories = DiseaseSubCategory.objects.filter(name__icontains=keyword)
 
-    # 하위분류 상병코드가 있는 경우와 없는 경우 처리
-    disease_codes = DiseaseDetailCode.objects.filter(detail_name__icontains=keyword)
+    # 오탈자 교정된 추천 검색어 리스트
+    corrected_keyword, suggested_keywords = correct_typo(keyword, word_score_table)
 
+    # 검색 결과 필터링 (교정된 검색어를 사용)
+    insurance_categories_result = InsuranceCategory.objects.filter(
+        name__icontains=corrected_keyword
+    )
+    insurance_sub_categories_result = InsuranceSubCategory.objects.filter(
+        name__icontains=corrected_keyword
+    )
+    disease_categories_result = DiseaseCategory.objects.filter(
+        incomplete_name__icontains=corrected_keyword
+    )
+    disease_sub_categories_result = DiseaseSubCategory.objects.filter(
+        name__icontains=corrected_keyword
+    )
+    disease_codes_result = DiseaseDetailCode.objects.filter(
+        detail_name__icontains=corrected_keyword
+    )
+
+    # context에 모든 검색 결과와 추천 검색어 전달
     context = {
-        "insurance_categories": insurance_categories,
-        "insurance_sub_categories": insurance_sub_categories,
-        "disease_categories": disease_categories,
-        "disease_sub_categories": disease_sub_categories,
-        "disease_codes": disease_codes,
-        "similar_disease_names": similar_disease_names,
-        "similar_insurance_categories": similar_insurance_categories,
-        "keyword": keyword,
+        "insurance_categories": insurance_categories_result,
+        "insurance_sub_categories": insurance_sub_categories_result,
+        "disease_categories": disease_categories_result,
+        "disease_sub_categories": disease_sub_categories_result,
+        "disease_codes": disease_codes_result,
+        "suggested_keywords": suggested_keywords,  # 추천 검색어 전달
+        "keyword": keyword,  # 원래 검색어도 전달
+        "corrected_keyword": corrected_keyword,  # 교정된 검색어 전달
+        "disease_categories_list": DiseaseCategory.objects.prefetch_related(
+            "diseasesubcategory_set"
+        ).all(),  # 모든 대분류 및 중분류 리스트
     }
+
     return render(request, "results.html", context)
 
 
 def index(request):
-    # 대분류 상병코드 + 상병명 리스트
-    main_disease_codes = [
-        {"code": "K00.~", "name": "치아 발육 및 맹출 장애"},
-        {"code": "K01.~", "name": "매몰치 및 매복치"},
-        {"code": "K02.~", "name": "치아 우식"},
-        {"code": "K03.~", "name": "마모 등 치아 경조직 질환"},
-        {"code": "K04.~", "name": "치수 및 근단"},
-        {"code": "K05.~", "name": "치은염 및 치주질환"},
-        {"code": "K06.~", "name": "잇몸 및 무치성 치조융기의 기타 장애"},
-        {"code": "K07.~", "name": "치아얼굴이상 [부정교합 포함]"},
-        {"code": "K08.~", "name": "치아 및 지지구조의 기타 장애"},
-        {"code": "K10.~", "name": "턱의 기타 질환"},
-        {"code": "K11.~", "name": "침샘의 질환"},
-        {"code": "K12.~", "name": "구내염 및 관련 병변"},
-        {"code": "K13.~", "name": "입술 및 구강점막의 기타 질환"},
-        {"code": "S00.~", "name": "머리의 표재성 손상"},
-        {"code": "S01.~", "name": "머리의 열린상처"},
-        {"code": "S02.~", "name": "두개골 및 안면골의 골절"},
-        {"code": "S03.~", "name": "머리의 관절 및 인대의 탈구, 염좌 및 긴장"},
-        {"code": "S04.~", "name": "뇌신경의 손상"},
-        {"code": "B00.~", "name": "헤르페스바이러스 감염"},
-        {"code": "D10.~", "name": "입 인두의 양성 신생물"},
-        {"code": "K29.0~", "name": "위염 및 십이지장염"},
-        {"code": "Q38.~", "name": "혀입인두의 선천기형"},
-        {"code": "기타", "name": "기타 상병명"},
-    ]
+    # 모든 대분류 및 중분류를 가져옵니다.
+    disease_categories = DiseaseCategory.objects.prefetch_related(
+        "diseasesubcategory_set"
+    ).all()  # 대분류와 중분류 연결
+    main_disease_codes = []
+
+    # 대분류와 그에 속한 중분류 리스트 생성
+    for category in disease_categories:
+        subcategories = (
+            category.diseasesubcategory_set.all()
+        )  # 해당 대분류의 중분류 가져오기
+        main_disease_codes.append(
+            {
+                "code": category.incomplete_code,
+                "name": category.incomplete_name,
+                "subcategories": subcategories,  # 중분류 추가
+            }
+        )
 
     return render(request, "index.html", {"main_disease_codes": main_disease_codes})

@@ -1,113 +1,117 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
+    <title>Search Results for "{{ keyword }}"</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <!-- CSS 파일 연결 -->
   </head>
 
   <body>
-    <h1>Search Results for "{{ keyword }}"</h1>
-
-    <!-- 유사한 검색어 추천 -->
-    {% if similar_disease_names or similar_insurance_categories %}
-      <h2>Did you mean:</h2>
-      <ul>
-        {% for name in similar_disease_names %}
-          <li>
-            <a href="{% url 'search' %}?keyword={{ name }}">{{ name }}</a>
-          </li>
-        {% endfor %}
-        {% for category in similar_insurance_categories %}
-          <li>
-            <a href="{% url 'search' %}?keyword={{ category }}">{{ category }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-
-    <!-- 검색 결과가 있는 경우 테이블로 출력 -->
-    {% if insurance_categories or insurance_sub_categories or disease_categories or disease_sub_categories or disease_codes %}
-      <table>
-        <thead>
-          <tr>
-            <th>Insurance Category</th>
-            <th>Insurance SubCategory</th>
-            <th>Disease Category</th>
-            <th>Disease SubCategory</th>
-            <th>Disease Code</th>
-            <th>Disease Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Insurance Categories 결과 표시 -->
-          {% for category in insurance_categories %}
-            <tr>
-              <td>{{ category.name }}</td>
-              <td>
-                {% for sub_category in insurance_sub_categories %}
-                  {{ sub_category.name }}
-                  ({{ sub_category.category.name }})
-                  {% if not forloop.last %}<br>{% endif %}
+    <div class="container">
+      <div class="sidebar">
+        <h2>Main Disease Codes</h2>
+        <ul>
+          {% for disease in disease_categories_list %}
+            <li>
+              <a href="{% url 'search' %}?keyword={{ disease.incomplete_code }}">{{ disease.incomplete_code }}
+                {{ disease.incomplete_name }}</a>
+              <ul>
+                {% for sub in disease.diseasesubcategory_set.all %}
+                  <li style="margin-left: 20px;">
+                    <a href="{% url 'search' %}?keyword={{ sub.sub_code }}">{{ sub.sub_code }}
+                      {{ sub.name }}</a>
+                  </li>
                 {% endfor %}
-              </td>
-              <td>
-                {% for disease_category in disease_categories %}
-                  {{ disease_category.name }}
-                  {% if not forloop.last %}<br>{% endif %}
-                {% endfor %}
-              </td>
-              <td>
-                {% for disease_sub_category in disease_sub_categories %}
-                  {{ disease_sub_category.name }}
-                  ({{ disease_sub_category.category.name }})
-                  {% if not forloop.last %}<br>{% endif %}
-                {% endfor %}
-              </td>
-              <td>
-                {% for code in disease_codes %}
-                  {{ code.sub_code }}
-                  {% if not forloop.last %}<br>{% endif %}
-                {% endfor %}
-              </td>
-              <td>
-                {% for code in disease_codes %}
-                  {{ code.disease_name }}
-                  {% if not forloop.last %}<br>{% endif %}
-                {% endfor %}
-              </td>
-            </tr>
+              </ul>
+            </li>
           {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <!-- 검색 결과가 없을 때 메시지 -->
-      <p>No results found for "{{ keyword }}"</p>
-    {% endif %}
+        </ul>
+      </div>
 
-    <!-- 중분류에 하위 상병 코드가 없는 경우도 추가 -->
-    {% if no_sub_disease_codes %}
-      <table>
-        <thead>
-          <tr>
-            <th>Insurance SubCategory</th>
-            <th>Disease SubCategory</th>
-            <th>No sub-level Disease Codes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for sub_category in no_sub_disease_codes %}
-            <tr>
-              <td>{{ sub_category.name }}</td>
-              <td>{{ sub_category.name }}
-                ({{ sub_category.category.name }})</td>
-              <td>No sub-level disease codes</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% endif %}
+      <div class="content">
+        <h1>Search Results for "{{ keyword }}"</h1>
+
+        <!-- 오탈자 교정이 된 경우 원래 검색어와 교정된 검색어 표시 -->
+        {% if keyword != corrected_keyword %}
+          <p>Showing results for "{{ corrected_keyword }}".</p>
+          <p>Search instead for "<a href="{% url 'search' %}?keyword={{ keyword }}">{{ keyword }}</a>".</p>
+        {% endif %}
+
+        <!-- 검색어가 있는 경우에만 검색 결과를 확인 -->
+        {% if keyword %}
+          <!-- 검색 결과가 있는 경우 테이블로 출력 -->
+          {% if insurance_categories or insurance_sub_categories or disease_categories or disease_sub_categories or disease_codes %}
+            <table>
+              <thead>
+                <tr>
+                  <th>대분류</th>
+                  <th>소분류</th>
+                  <th>병명</th>
+                  <th>코드</th>
+                  <th>상세설명</th>
+                  <th>링크</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 보험 카테고리 결과 표시 -->
+                {% for category in insurance_categories %}
+                  <tr>
+                    <td>{{ category.name }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      <a href="{{ category.url }}">링크</a>
+                      <!-- 보험 링크 추가 -->
+                    </td>
+                  </tr>
+                {% endfor %}
+
+                <!-- 상병 코드 결과 표시 -->
+                {% for disease_code in disease_codes %}
+                  <tr>
+                    <td></td>
+                    <!-- 상병명 대분류 -->
+                    <td></td>
+                    <!-- 상병명 중분류 -->
+                    <td>{{ disease_code.detail_name }}</td>
+                    <!-- 상병명 하위분류 (병명) -->
+                    <td>{{ disease_code.detail_code }}</td>
+                    <!-- 상병 코드 하위분류 -->
+                    <td></td>
+                    <!-- 상세설명 -->
+                    <td>
+                      <a href="#">링크</a>
+                      <!-- 필요에 따라 링크 추가 -->
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <!-- 검색 결과가 없을 때 메시지 및 추천 검색어 표시 -->
+            <p>No results found for "{{ keyword }}"</p>
+            <h2>Did you mean:</h2>
+            <ul>
+              {% for suggestion in suggested_keywords %}
+                <li>
+                  <a href="{% url 'search' %}?keyword={{ suggestion }}">{{ suggestion }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% else %}
+          <p>Please enter a keyword to search.</p>
+          <!-- 검색어가 없을 때 메시지 -->
+        {% endif %}
+      </div>
+    </div>
   </body>
 
 </html>

@@ -7,7 +7,7 @@ class DiseaseCategory(models.Model):
     incomplete_name = models.CharField(max_length=255)  # 불완전 상병명 (대분류명)
 
     def __str__(self):
-        return f"{self.incomplete_code} - {self.incomplete_name}"
+        return self.incomplete_code  # 코드만 반환
 
 
 # 상병코드 중분류
@@ -19,9 +19,7 @@ class DiseaseSubCategory(models.Model):
     name = models.CharField(max_length=255)  # 중분류 상병명
 
     def __str__(self):
-        return (
-            f"{self.sub_code} - {self.name} (Category: {self.category.incomplete_name})"
-        )
+        return f"{self.sub_code} - {self.name}"  # 코드와 이름 반환
 
 
 # 상병코드 하위분류 (세부 상병 코드)
@@ -35,10 +33,7 @@ class DiseaseDetailCode(models.Model):
     detail_name = models.CharField(max_length=255)  # 하위분류 상병명
 
     def __str__(self):
-        if self.sub_category:
-            return f"{self.detail_code} - {self.detail_name}"
-        else:
-            return f"{self.sub_category.sub_code} - {self.sub_category.name}"
+        return f"{self.detail_code} - {self.detail_name}"  # 코드와 상세명 반환
 
 
 # 보험 대분류
@@ -68,4 +63,4 @@ class InsuranceSubCategory(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name  # 보험 중분류명 반환

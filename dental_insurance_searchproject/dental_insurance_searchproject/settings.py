@@ -15,6 +15,12 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = "/static/"
+
+# STATICFILES_DIRS에 정적 파일 폴더 추가
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # 루트에서 정적 파일
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
