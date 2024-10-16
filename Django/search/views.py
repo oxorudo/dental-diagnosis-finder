@@ -14,12 +14,14 @@ model_name = "jhgan/ko-sroberta-multitask"
 tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
 model = AutoModel.from_pretrained(model_name)
 
+
 # 텍스트를 임베딩으로 변환하는 함수
 def get_embeddings(texts):
     inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
     with torch.no_grad():
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()  # [CLS] 토큰 벡터만 사용
+
 
 # 오탈자 교정 함수
 def correct_typo(input_word, dictionary):
@@ -32,40 +34,53 @@ def correct_typo(input_word, dictionary):
         suggestions = []
     return corrected_word, suggestions
 
+
 def search_view(request):
     form = SearchForm()
     data = []
-    if request.method == 'GET':
-        query = request.GET.get('q', '').strip()  # 검색어 가져오기
+    if request.method == "GET":
+        query = request.GET.get("q", "").strip()  # 검색어 가져오기
         print(query)
         if not query:
             # 검색어가 없으면 빈 리스트를 반환
-            return render(request, 'search.html', {'results': [], 'query': query})
+            return render(request, "search.html", {"results": [], "query": query})
 
         # 검색어가 있을 때 필터링
         results = DentalClaim.objects.filter(
-            Q(incomplete_disease_code__icontains=query) |
-            Q(incomplete_disease_name__icontains=query) |
-            Q(claim_category__icontains=query) |
-            Q(claim_detail__icontains=query)
+            Q(incomplete_disease_code__icontains=query)
+            | Q(incomplete_disease_name__icontains=query)
+            | Q(claim_category__icontains=query)
+            | Q(claim_detail__icontains=query)
         )
         print(f"Results: {list(results)}")
-        
+
         # QuerySet을 딕셔너리 형태로 변환
-        data = list(results.values(
-            'incomplete_disease_code', 'incomplete_disease_name', 'claim_category', 'claim_detail'
-        ))
+        data = list(
+            results.values(
+                "incomplete_disease_code",
+                "incomplete_disease_name",
+                "claim_category",
+                "claim_detail",
+            )
+        )
 
     # 결과와 검색어를 템플릿으로 전달
-    return render(request, 'search.html', {'results': results, 'query': query,'data' : data})
+    return render(
+        request, "search.html", {"results": results, "query": query, "data": data}
+    )
+
 
 def autocomplete_view(request):
-    query = request.GET.get('q', '')
+    query = request.GET.get("q", "")
     if query:
-        suggestions = DentalClaim.objects.filter(
-            Q(incomplete_disease_code__icontains=query) |
-            Q(incomplete_disease_name__icontains=query)
-        ).values_list('incomplete_disease_name', flat=True).distinct()  # 중복 제거
+        suggestions = (
+            DentalClaim.objects.filter(
+                Q(incomplete_disease_code__icontains=query)
+                | Q(incomplete_disease_name__icontains=query)
+            )
+            .values_list("incomplete_disease_name", flat=True)
+            .distinct()
+        )  # 중복 제거
     else:
         suggestions = []
 
@@ -80,11 +95,8 @@ def get_disease_hierarchy():
         code = claim.incomplete_disease_code
         name = claim.incomplete_disease_name
 
-        if code.endswith('.~'):
-            hierarchy[code] = {
-                'name': name,
-                'children': {}
-            }
+        if code.endswith(".~"):
+            hierarchy[code] = {"name": name, "children": {}}
 
     return hierarchy
 
@@ -102,16 +114,18 @@ def get_middle_categories(hierarchy):
             continue  # 코드가 2자리 미만이면 건너뛰기
 
         # 중분류 코드 확인 (K00.0~, K00.1 형식)
-        if (code[-2].isdigit() and code[-1] == '~') or (code.split('.')[-1].isdigit() and len(code.split('.')[-1]) == 1):
-            parent_code = code.rsplit('.', 1)[0] + '.'  # 대분류 코드
+        if (code[-2].isdigit() and code[-1] == "~") or (
+            code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 1
+        ):
+            parent_code = code.rsplit(".", 1)[0] + "."  # 대분류 코드
             if parent_code not in middle_categories:
                 middle_categories[parent_code] = {
-                    'name': hierarchy.get(parent_code, {}).get('name', ''),
-                    'children': {}
+                    "name": hierarchy.get(parent_code, {}).get("name", ""),
+                    "children": {},
                 }
-            middle_categories[parent_code]['children'][code] = {
-                'name': name,
-                'children': {}  # 하위분류를 위한 children 초기화
+            middle_categories[parent_code]["children"][code] = {
+                "name": name,
+                "children": {},  # 하위분류를 위한 children 초기화
             }
 
     return middle_categories
@@ -119,35 +133,19 @@ def get_middle_categories(hierarchy):
 
 def get_sub_categories(middle_categories):
     claims = DentalClaim.objects.all()
-    sub_categories = {}
 
     for claim in claims:
         code = claim.incomplete_disease_code
         name = claim.incomplete_disease_name
 
-        # 하위 분류 조건 확인: 중분류가 '~'로 끝나야 함
-        if code.split('.')[-1].isdigit() and len(code.split('.')[-1]) in {2, 3}:
-            # 중분류 코드를 생성
-            middle_code = '.'.join(code.split('.')[:-1]) + '.' + code.split('.')[-1][0] + '~'  
-            print(f"Checking subcategory: code={code}, middle_code={middle_code}")
+        # 하위분류 코드 확인 (숫자가 2자리 또는 3자리인 경우)
+        if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) in {2, 3}:
+            parent_code = ".".join(code.split(".")[:-1]) + "."  # 중분류 코드
+            if parent_code in middle_categories:  # 중분류가 존재하는 경우
+                # 중분류에 하위분류 추가
+                middle_categories[parent_code]["children"][code] = {"name": name, 'type': 'sub'}
 
-            # 중분류가 존재하는지 확인
-            if middle_code in middle_categories:
-                parent_code = middle_code  # 부모 코드를 중분류 코드로 설정
-                if parent_code not in sub_categories:
-                    sub_categories[parent_code] = {
-                        'name': middle_categories[parent_code]['name'],
-                        'children': {}
-                    }
-                sub_categories[parent_code]['children'][code] = {
-                    'name': name,
-                    'children': {}
-                }
-            else:
-                print(f"Warning: Middle code '{middle_code}' not found in middle_categories.")
-
-    print(f"Subcategories: {sub_categories}")  # 전체 하위 분류 출력
-    return sub_categories
+    return middle_categories
 
 
 def build_hierarchy():
@@ -159,21 +157,21 @@ def build_hierarchy():
     full_hierarchy = {}
     for parent_code, middle_category in middle_categories.items():
         full_hierarchy[parent_code] = {
-            'name': middle_category['name'],
-            'children': middle_category['children']
+            "name": middle_category["name"],
+            "children": middle_category["children"],
         }
         if parent_code in sub_categories:
-            full_hierarchy[parent_code]['children'].update(sub_categories[parent_code]['children'])
+            full_hierarchy[parent_code]["children"].update(
+                sub_categories[parent_code]["children"]
+            )
 
-    print(f"Full Hierarchy: {json.dumps(full_hierarchy, ensure_ascii=False, indent=4)}")  # 최종 계층 구조 출력
     return full_hierarchy
-
 
 
 def sidebar_view(request):
     full_hierarchy = build_hierarchy()  # 전체 계층 구조 가져오기
 
     context = {
-        'full_hierarchy': full_hierarchy,  # 계층 구조를 context에 추가
+        "full_hierarchy": full_hierarchy,  # 계층 구조를 context에 추가
     }
-    return render(request, 'base.html', context)
+    return render(request, "base.html", context)

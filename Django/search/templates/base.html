@@ -1,73 +1,90 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Site{% endblock %}</title>
+    <title>
+      {% block title %}My Site{% endblock %}
+    </title>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <script src="{% static 'scripts.js' %}"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <div class="sidebar">
-            <h2>병명</h2>
-            <ul id="major-list">
-                {% for code, disease in major_categories.items %}
-                    <li>
-                        <a href="#" class="major-category" data-code="{{ code }}">{{ code }} - {{ disease.name }}</a>
-                        <ul class="middle-list" data-code="{{ code }}" style="display: none;">
-                            {% for middle_code, middle in middle_categories.items %}
-                                {% if middle_code|slice:":-1" == code %}
-                                    <li>
-                                        <a href="#" class="middle-category" data-code="{{ middle_code }}">{{ middle_code }} - {{ middle.name }}</a>
-                                        <ul class="sub-list" data-code="{{ middle_code }}" style="display: none;">
-                                            {% for sub_code, sub in sub_categories.items %}
-                                                {% if sub_code|slice:":-1" == middle_code %}
-                                                    <li>{{ sub_code }} - {{ sub.name }}</li>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </li>
-                {% empty %}
-                    <li>데이터가 없습니다.</li>
+      <div class="sidebar">
+        <h2>병명</h2>
+        <ul>
+          {% for parent_code, parent_data in full_hierarchy.items %}
+            <li>
+              <strong>{{ parent_code }}
+                -
+                {{ parent_data.name }}</strong>
+              <ul>
+                {% for middle_code, middle_data in parent_data.children.items %}
+                  <li>
+                    {% if middle_data.type == 'sub' %}
+                      {{ middle_code }}
+                      -
+                      {{ middle_data.name }}
+                    {% else %}
+                      {{ middle_code }}
+                      -
+                      {{ middle_data.name }}
+                      <ul>
+                        {% for sub_code, sub_data in middle_data.children.items %}
+                          <li>{{ sub_code }}
+                            -
+                            {{ sub_data.name }}</li>
+                          {% empty %}
+                          <li>No subcategories available</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  </li>
                 {% endfor %}
-            </ul>
-                        
-        </div>
+              </ul>
+            </li>
+            {% empty %}
+            <li>No categories available</li>
+          {% endfor %}
+        </ul>
 
-        <div class="content">
-            {% block content %}
-            {% endblock %}
-        </div>
+      </div>
+
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const majorLinks = document.querySelectorAll('.major-category');
-            const middleLinks = document.querySelectorAll('.middle-category');
+      document.addEventListener('DOMContentLoaded', function () {
+        const majorLinks = document.querySelectorAll('.major-category');
+        const middleLinks = document.querySelectorAll('.middle-category');
 
-            majorLinks.forEach(link => {
-                link.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const middleList = this.nextElementSibling;
-                    middleList.style.display = middleList.style.display === 'none' ? 'block' : 'none';
-                });
-            });
-
-            middleLinks.forEach(link => {
-                link.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const subList = this.nextElementSibling;
-                    subList.style.display = subList.style.display === 'none' ? 'block' : 'none';
-                });
-            });
+        majorLinks.forEach(link => {
+          link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const middleList = this.nextElementSibling;
+            middleList.style.display = middleList.style.display === 'none'
+              ? 'block'
+              : 'none';
+          });
         });
+
+        middleLinks.forEach(link => {
+          link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const subList = this.nextElementSibling;
+            subList.style.display = subList.style.display === 'none'
+              ? 'block'
+              : 'none';
+          });
+        });
+      });
     </script>
-</body>
+  </body>
+
 </html>
