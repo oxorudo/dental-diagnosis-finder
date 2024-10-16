@@ -1,2 +1,4 @@
 googlesheet/key.json
-NLP/key.json
+**/key.json
+**/__pycache__
+**/*.py[cod]

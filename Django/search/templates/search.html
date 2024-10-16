@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>치과 상병 코드 검색</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+        }
+        .main-content {
+            margin-left: 200px;
+        }
+        .search-area {
+            height: 16.67vh;
+        }
+        .result-table {
+            height: 50vh;
+            overflow-y: auto;
+        }
+        .detail-area {
+            height: 33.33vh;
+            overflow-y: auto;
+        }
+        .table-responsive {
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 왼쪽 드롭다운 메뉴 -->
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">치과 상병 코드 검색</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">통계</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 메인 컨텐츠 영역 -->
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- 검색 영역 -->
+                <div class="search-area d-flex justify-content-center align-items-center">
+                    <div class="w-75">
+                        <form method="GET" action="{% url 'search_view' %}">
+                            <input type="text" class="form-control" name="q" id="search-input" placeholder="상병 코드 또는 상병명을 입력하세요" value="{{ query }}">
+                            <button class="btn btn-primary mt-2" type="submit">검색</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- 결과 테이블 영역 -->
+                    <div class="col-md-12 result-table mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>불완전 상병 코드</th>
+                                        <th>불완전 상병명</th>
+                                        <th>청구 카테고리</th>
+                                        <th>세부 청구 항목</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if results %}
+                                        {% for result in results %}
+                                            <tr>
+                                                <td>{{ result.incomplete_disease_code }}</td>
+                                                <td>{{ result.incomplete_disease_name }}</td>
+                                                <td>{{ result.claim_category|default:"없음" }}</td>
+                                                <td>{{ result.claim_detail|default:"없음" }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">검색 결과가 없습니다.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-12 detail-area mt-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">상세 정보</h5>
+                                <div id="detail-content">
+                                    <!-- 여기에 선택된 항목의 상세 정보가 표시됩니다 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

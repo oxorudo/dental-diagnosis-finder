@@ -1,16 +1,18 @@
+from django.http import JsonResponse
 from django.shortcuts import render
-from .models import (
-    DentalClaim
-)
+from .models import DentalClaim
+from .forms import SearchForm
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
+from django.db.models import Q
+from django.core.cache import cache
+
 
 # KoELECTRA 모델 및 토크나이저 로드
 model_name = "jhgan/ko-sroberta-multitask"
-tokenizer = AutoTokenizer.from_pretrained(model_name,clean_up_tokenization_spaces=True)
+tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
 model = AutoModel.from_pretrained(model_name)
-
 
 # 텍스트를 임베딩으로 변환하는 함수
 def get_embeddings(texts):
@@ -18,7 +20,6 @@ def get_embeddings(texts):
     with torch.no_grad():
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()  # [CLS] 토큰 벡터만 사용
-
 
 # 오탈자 교정 함수
 def correct_typo(input_word, dictionary):
@@ -30,6 +31,45 @@ def correct_typo(input_word, dictionary):
         corrected_word = input_word
         suggestions = []
     return corrected_word, suggestions
+
+def search_view(request):
+    form = SearchForm()
+    data = []
+    if request.method == 'GET':
+        query = request.GET.get('q', '').strip()  # 검색어 가져오기
+        print(query)
+        if not query:
+            # 검색어가 없으면 빈 리스트를 반환
+            return render(request, 'search.html', {'results': [], 'query': query})
+
+        # 검색어가 있을 때 필터링
+        results = DentalClaim.objects.filter(
+            Q(incomplete_disease_code__icontains=query) |
+            Q(incomplete_disease_name__icontains=query) |
+            Q(claim_category__icontains=query) |
+            Q(claim_detail__icontains=query)
+        )
+        print(f"Results: {list(results)}")
+        
+        # QuerySet을 딕셔너리 형태로 변환
+        data = list(results.values(
+            'incomplete_disease_code', 'incomplete_disease_name', 'claim_category', 'claim_detail'
+        ))
+
+    # 결과와 검색어를 템플릿으로 전달
+    return render(request, 'search.html', {'results': results, 'query': query,'data' : data})
+
+def autocomplete_view(request):
+    query = request.GET.get('q', '')
+    if query:
+        suggestions = DentalClaim.objects.filter(
+            Q(incomplete_disease_code__icontains=query) |
+            Q(incomplete_disease_name__icontains=query)
+        ).values_list('incomplete_disease_name', flat=True).distinct()  # 중복 제거
+    else:
+        suggestions = []
+
+    return JsonResponse(list(suggestions), safe=False)
 
 
 # def search(request):
