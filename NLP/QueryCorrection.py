@@ -22,15 +22,6 @@ class HangulSearch:
         if all(char.isalpha() and char.islower() for char in query):  # 모든 문자가 알파벳 소문자인 경우 한글로 변환
             query = join_jamos(self.convert_eng_to_kor(query))
 
-        # max_score = 0
-        # corrected = query
-        # for column in self.dataframe.columns:
-        #     closest_match = process.extractOne(query, self.dataframe[column], scorer=fuzz.WRatio)
-        #     if closest_match and closest_match[1] > max_score:
-        #         max_score = closest_match[1]
-        #         corrected = closest_match[0] if max_score > 50 else query  # 유사도 75% 이상인 경우만 반환
-
-        # return corrected
         max_score = 0
         corrected = query
         for column in self.dataframe.columns:
