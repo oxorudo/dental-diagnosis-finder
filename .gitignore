@@ -1,4 +1,4 @@
 googlesheet/key.json
 **/key.json
-**/__pycache__
+**/__pycache__/
 **/*.py[cod]

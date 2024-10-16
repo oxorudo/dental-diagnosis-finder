@@ -1,72 +1,14 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}Search Page{% endblock %}
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
-  </head>
+{% block content %}
+<h1>Search</h1>
 
-  <body>
-    <div class="container">
-      <div class="sidebar">
-        <h2>Main Disease Codes</h2>
-        <ul>
-          {% for disease in main_disease_codes %}
-            <li>
-              <a href="#" onclick="toggleSubcategories('{{ disease.code }}')">{{ disease.code }}
-                {{ disease.name }}</a>
-              <ul class="subcategory" id="{{ disease.code }}">
-                {% for sub in disease.children.all %}
-                  <li style="margin-left: 20px;">
-                    <a href="#" onclick="toggleDetailCodes('{{ sub.code }}')">{{ sub.code }}
-                      {{ sub.name }}</a>
-                    <ul class="detailcode" id="{{ sub.code }}">
-                      {% for detail in sub.disease_codes.all %}
-                        <li>
-                          <a href="{% url 'search' %}?keyword={{ detail.code }}">{{ detail.code }}
-                            {{ detail.name }}</a>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </li>
-                {% endfor %}
-              </ul>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+<!-- 검색 폼 -->
+<form action="{% url 'search' %}" method="get">
+  <input type="text" name="keyword" placeholder="Enter a keyword">
+  <button type="submit">Search</button>
+</form>
+{% endblock %}
 
-      <div class="content">
-        <h1>Search</h1>
-
-        <!-- 검색 폼 -->
-        <form action="{% url 'search' %}" method="get">
-          <input type="text" name="keyword" placeholder="Enter a keyword">
-          <button type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-
-    <script>
-      function toggleSubcategories(code) {
-        var subcategory = document.getElementById(code);
-        subcategory
-          .classList
-          .toggle('show'); // show 클래스를 토글
-      }
-
-      function toggleDetailCodes(sub_code) {
-        var detailCodes = document.getElementById(sub_code);
-        detailCodes
-          .classList
-          .toggle('show'); // show 클래스를 토글
-      }
-    </script>
-
-  </body>
-
-</html>

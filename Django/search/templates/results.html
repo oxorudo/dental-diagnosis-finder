@@ -1,93 +1,61 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}Search Results for "{{ keyword }}"{% endblock %}
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results for "{{ keyword }}"</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
-  </head>
+{% block content %}
+<h1>Search Results for "{{ keyword }}"</h1>
 
-  <body>
-    <div class="container">
-      <div class="sidebar">
-        <h2>Main Disease Codes</h2>
-        <ul>
-          {% for disease in disease_categories_list %}
-            <li>
-              <a href="{% url 'search' %}?keyword={{ disease.code }}">{{ disease.code }}
-                {{ disease.name }}</a>
-              <ul>
-                {% for sub in disease.children.all %}
-                  <li style="margin-left: 20px;">
-                    <a href="{% url 'search' %}?keyword={{ sub.code }}">{{ sub.code }}
-                      {{ sub.name }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+<!-- 오탈자 교정이 된 경우 원래 검색어와 교정된 검색어 표시 -->
+{% if keyword != corrected_keyword %}
+  <p>Showing results for "{{ corrected_keyword }}".</p>
+  <p>Search instead for "<a href="{% url 'search' %}?keyword={{ keyword }}">{{ keyword }}</a>".</p>
+{% endif %}
 
-      <div class="content">
-        <h1>Search Results for "{{ keyword }}"</h1>
+<!-- 검색어가 있는 경우에만 검색 결과를 확인 -->
+{% if keyword %}
+  <!-- 검색 결과가 있는 경우 테이블로 출력 -->
+  {% if search_results %}
+    <table>
+      <thead>
+        <tr>
+          <th>대분류</th>
+          <th>소분류</th>
+          <th>병명</th>
+          <th>코드</th>
+          <th>상세설명</th>
+          <th>링크</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in search_results %}
+          <tr>
+            <td>{{ result.parent.code if result.parent else '' }}</td>
+            <td>{{ result.code if result.level == '중분류' else '' }}</td>
+            <td>{{ result.name }}</td>
+            <td>{{ result.code }}</td>
+            <td></td>
+            <td>
+              <a href="#">링크</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <!-- 검색 결과가 없을 때 메시지 및 추천 검색어 표시 -->
+    <p>No results found for "{{ keyword }}"</p>
+    <h2>Did you mean:</h2>
+    <ul>
+      {% for suggestion in suggested_keywords %}
+        <li>
+          <a href="{% url 'search' %}?keyword={{ suggestion }}">{{ suggestion }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% else %}
+  <p>Please enter a keyword to search.</p>
+{% endif %}
 
-        <!-- 오탈자 교정이 된 경우 원래 검색어와 교정된 검색어 표시 -->
-        {% if keyword != corrected_keyword %}
-          <p>Showing results for "{{ corrected_keyword }}".</p>
-          <p>Search instead for "<a href="{% url 'search' %}?keyword={{ keyword }}">{{ keyword }}</a>".</p>
-        {% endif %}
+{% endblock %}
 
-        <!-- 검색어가 있는 경우에만 검색 결과를 확인 -->
-        {% if keyword %}
-          <!-- 검색 결과가 있는 경우 테이블로 출력 -->
-          {% if search_results %}
-            <table>
-              <thead>
-                <tr>
-                  <th>대분류</th>
-                  <th>소분류</th>
-                  <th>병명</th>
-                  <th>코드</th>
-                  <th>상세설명</th>
-                  <th>링크</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for result in search_results %}
-                  <tr>
-                    <td>{{ result.parent.code if result.parent else '' }}</td>
-                    <td>{{ result.code if result.level == '중분류' else '' }}</td>
-                    <td>{{ result.name }}</td>
-                    <td>{{ result.code }}</td>
-                    <td></td>
-                    <td>
-                      <a href="#">링크</a>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          {% else %}
-            <!-- 검색 결과가 없을 때 메시지 및 추천 검색어 표시 -->
-            <p>No results found for "{{ keyword }}"</p>
-            <h2>Did you mean:</h2>
-            <ul>
-              {% for suggestion in suggested_keywords %}
-                <li>
-                  <a href="{% url 'search' %}?keyword={{ suggestion }}">{{ suggestion }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% else %}
-          <p>Please enter a keyword to search.</p>
-        {% endif %}
-      </div>
-    </div>
-  </body>
-
-</html>
