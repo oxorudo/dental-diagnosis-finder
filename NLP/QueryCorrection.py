@@ -56,13 +56,13 @@ class HangulSearch:
 
         return self.search_with_partial_and_correction(data, query)
 
-    def search_df_with_options(self, df, query):
-        results = self.search_with_contains(df.applymap(str).values.flatten(), query)
+    def search_df_with_options(self, query):
+        results = self.search_with_contains(self.df.applymap(str).values.flatten(), query)
         if not results:
-            for column in df.columns:
-                col_results = self.search_with_options(df[column].apply(str).tolist(), query)
+            for column in self.df.columns:
+                col_results = self.search_with_options(self.df[column].apply(str).tolist(), query)
                 if col_results:
                     results.extend(col_results)
 
         unique_results = set(results)
-        return df[df.apply(lambda row: any(str(row[col]) in unique_results for col in df.columns), axis=1)]
+        return self.df[self.df.apply(lambda row: any(str(row[col]) in unique_results for col in self.df.columns), axis=1)]
