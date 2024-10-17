@@ -117,7 +117,7 @@ def get_middle_categories(hierarchy):
         if (code[-2].isdigit() and code[-1] == "~") or (
             code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 1
         ):
-            parent_code = code.rsplit(".", 1)[0] + "."  # 대분류 코드
+            parent_code = code.rsplit(".", 1)[0] + ".~"  # 대분류 코드
             if parent_code not in middle_categories:
                 middle_categories[parent_code] = {
                     "name": hierarchy.get(parent_code, {}).get("name", ""),
@@ -140,10 +140,13 @@ def get_sub_categories(middle_categories):
 
         # 하위분류 코드 확인 (숫자가 2자리 또는 3자리인 경우)
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) in {2, 3}:
-            parent_code = ".".join(code.split(".")[:-1]) + "."  # 중분류 코드
-            if parent_code in middle_categories:  # 중분류가 존재하는 경우
-                # 중분류에 하위분류 추가
-                middle_categories[parent_code]["children"][code] = {"name": name, 'type': 'sub'}
+            parent_code = ".".join(code.split(".")[:-1]) + ".~"  # 대분류 코드
+            if parent_code in middle_categories:  # 대분류가 존재하는 경우
+                # 대분류에 하위분류 추가
+                middle_categories[parent_code]["children"][code] = {
+                    "name": name,
+                    "type": "sub",
+                }
 
     return middle_categories
 
