@@ -9,7 +9,7 @@ import difflib
 from search.apps import global_searcher,global_url
 from django.views.decorators.csrf import csrf_exempt
 from Django.search.utils.GoogleSheet import get_sheet_data
-
+import re
 
 # KoELECTRA 모델 및 토크나이저 로드
 model_name = "jhgan/ko-sroberta-multitask"
@@ -64,8 +64,8 @@ def get_disease_hierarchy():
     hierarchy = {}
 
     for claim in claims:
-        code = claim.incomplete_disease_code
-        name = claim.incomplete_disease_name
+        code = re.sub(r'\x08', '', claim.incomplete_disease_code.strip())
+        name = re.sub(r'\x08', '', claim.incomplete_disease_name.strip())
 
         if code.endswith(".~"):
             hierarchy[code] = {"name": name, "children": {}}
@@ -78,8 +78,8 @@ def get_middle_categories(hierarchy):
     middle_categories = {}
 
     for claim in claims:
-        code = claim.incomplete_disease_code
-        name = claim.incomplete_disease_name
+        code = re.sub(r'\x08', '', claim.incomplete_disease_code.strip())
+        name = re.sub(r'\x08', '', claim.incomplete_disease_name.strip())
 
         # 코드 길이 확인
         if len(code) < 2:
@@ -107,8 +107,8 @@ def get_sub_categories(middle_categories):
     claims = DentalClaim.objects.all()
 
     for claim in claims:
-        code = claim.incomplete_disease_code
-        name = claim.incomplete_disease_name
+        code = re.sub(r'\x08', '', claim.incomplete_disease_code.strip())
+        name = re.sub(r'\x08', '', claim.incomplete_disease_name.strip())
 
         # 하위분류 코드 확인 (숫자가 2자리 또는 3자리인 경우)
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) in {2, 3}:

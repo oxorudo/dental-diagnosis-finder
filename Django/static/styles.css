@@ -15,6 +15,8 @@ body {
     background-color: #f3f4f7;
     height: 100%;
     border-right: 1px solid #ddd;
+    overflow-y: auto;
+
 }
 
 .sidebar .nav-link {
@@ -65,7 +67,8 @@ button.search-btn {
     border: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+    white-space: nowrap;
+    /* 텍스트 줄바꿈 방지 */
 }
 
 
@@ -89,6 +92,7 @@ button.search-btn:hover {
 
 .table tbody tr:hover {
     background-color: #f1f7ff;
+    cursor: pointer;
 }
 
 .table-body-wrapper {
@@ -125,12 +129,15 @@ button.search-btn:hover {
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    overflow: hidden; /* 테두리 내부에서 스크롤되는 효과를 위해 overflow 설정 */
+    overflow: hidden;
+    /* 테두리 내부에서 스크롤되는 효과를 위해 overflow 설정 */
 }
 
 .table-body-wrapper {
-    max-height: 300px; /* 테이블 본문에 대한 최대 높이 지정 */
-    overflow-y: auto; /* 세로 스크롤 허용 */
+    max-height: 300px;
+    /* 테이블 본문에 대한 최대 높이 지정 */
+    overflow-y: auto;
+    /* 세로 스크롤 허용 */
 }
 
 .table-body-wrapper::-webkit-scrollbar {
@@ -148,6 +155,6 @@ button.search-btn:hover {
     top: 0;
     background-color: #f8f9fa;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    z-index: 2; /* 헤더가 본문 위에 유지되도록 z-index 설정 */
+    z-index: 2;
+    /* 헤더가 본문 위에 유지되도록 z-index 설정 */
 }
-
