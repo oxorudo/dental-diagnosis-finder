@@ -73,15 +73,16 @@ button[type="submit"]:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.table-striped tbody tr:hover {
-    background-color: #f1f1f1;
-    cursor: pointer;
+/* 테이블 행 호버 효과 */
+table tbody tr:hover {
+    background-color: #f1f1f1; /* 행에 마우스를 올렸을 때 밝은 회색으로 배경 변경 */
+    cursor: pointer; /* 커서를 포인터 모양으로 변경 */
 }
 
-#result-body tr.selected {
-    background-color: #007bff;
+/* #result-body tr.selected {
+    background-color: #646b73;
     color: white;
-}
+} */
 
 .detail-area .card {
     border-radius: 10px;
@@ -113,17 +114,37 @@ button[type="submit"]:hover {
     border-radius: 5px;
 }
 
-body {
-    overflow: hidden;
-}
-
 /* 'table-striped' 스타일을 없애거나 적용하지 않음 */
 .table tbody tr {
     background-color: #ffffff; /* 모든 행을 흰색 배경으로 설정 */
 }
 
-/* Hover 효과는 여전히 유지하고 싶다면 */
-.table tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.15); /* 마우스 오버 시 강조 효과 */
-    cursor: pointer;
+/* 1. 그림자와 둥근 모서리가 있는 테이블 */
+.table {
+    width: 100%;
+    /* border-collapse: collapse; */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.table thead {
+    background-color: #f4f4f4;
+}
+
+button.btn-outline-secondary {
+    padding: 4px 6px; /* 버튼의 안쪽 여백(패딩) */
+    margin: 2px 2px; /* 버튼 사이 간격 */
+    font-size: 14px; /* 폰트 크기 조정 */
+    border-radius: 5px; /* 모서리 둥글게 */
+}
+
+button.btn-outline-secondary:hover {
+    background-color: #6c757d; /* 마우스 오버 시 배경색 변경 */
+    color: white; /* 글자색 변경 */
 }

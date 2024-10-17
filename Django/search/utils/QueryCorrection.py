@@ -1,5 +1,5 @@
 from rapidfuzz import process, fuzz
-from .unicode import *
+from Django.search.utils import unicode
 
 class HangulSearch:
 

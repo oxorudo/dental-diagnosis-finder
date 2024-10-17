@@ -1,9 +1,12 @@
+import json
+from django.http import JsonResponse
 from django.shortcuts import render
 from .models import DentalClaim
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
 from search.apps import global_searcher
+from django.views.decorators.csrf import csrf_exempt 
 
 # KoELECTRA 모델 및 토크나이저 로드
 model_name = "jhgan/ko-sroberta-multitask"
@@ -47,6 +50,7 @@ def search_view(request):
         "query": query,                  # 검색어
         "full_hierarchy": full_hierarchy  # 사이드바에 필요한 전체 계층 구조
     }
+    print(results)
 
     return render(request, "search.html", context)
 
@@ -129,3 +133,19 @@ def build_hierarchy():
             )
 
     return full_hierarchy
+
+@csrf_exempt  # CSRF 검사를 비활성화할 수 있습니다. 또는 POST 요청 시 AJAX에 CSRF 토큰을 포함해야 합니다.
+def detail_action(request):
+    if request.method == 'POST':
+        # 클라이언트에서 받은 JSON 데이터를 파싱
+        data = json.loads(request.body)
+        detail = data.get('detail')
+        code = data.get('code')
+
+        # 서버 콘솔에 데이터 출력
+        print(f"Received detail: {detail}, code: {code}")
+
+        # 성공 응답
+        return JsonResponse({'message': f"Received {detail} for code {code}"})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

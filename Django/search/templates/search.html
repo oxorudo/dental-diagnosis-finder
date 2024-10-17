@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <html lang="ko">
 
 <head>
@@ -45,40 +46,41 @@
 
               <!-- Table and detail section -->
               <div class="row">
-                  <div class="col-md-12 result-table mt-3">
-                      <table class="table">
-                          <thead>
-                              <tr>
-                                  <th>불완전 상병 코드</th>
-                                  <th>불완전 상병명</th>
-                                  <th>청구 카테고리</th>
-                                  <th>세부 청구 항목</th>
-                              </tr>
-                          </thead>
-                      </table>
-
-                      <!-- Scrollable table body -->
-                      <div style="max-height: 400px; overflow-y: auto;">
-                          <table class="table table-striped">
-                              <tbody id="result-body">
-                                  {% if results %}
-                                      {% for row in results %}
-                                          <tr data-code="{{ row.0 }}" data-name="{{ row.1 }}" data-category="{{ row.2|default:"없음" }}" data-details="{{ row.3|default:"없음" }}">
-                                              <td>{{ row.0 }}</td>
-                                              <td>{{ row.1 }}</td>
-                                              <td>{{ row.2|default:"없음" }}</td>
-                                              <td>{{ row.3|default:"없음" }}</td>
-                                          </tr>
-                                      {% endfor %}
-                                  {% else %}
-                                      <tr>
-                                          <td colspan="4" class="text-center">검색 결과가 없습니다.</td>
-                                      </tr>
-                                  {% endif %}
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
+                <div class="col-md-12 result-table mt-3">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>불완전 상병 코드</th>
+                                <th>불완전 상병명</th>
+                                <th>청구 카테고리</th>
+                                <th>세부 청구 항목</th>
+                            </tr>
+                        </thead>
+                    </table>
+            
+                    <!-- Scrollable table body -->
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table class="table">
+                            <tbody id="result-body">
+                                {% if results %}
+                                  {% for row in results %}
+                                    <tr data-code="{{ row.0 }}" data-name="{{ row.1 }}" data-category="{{ row.2|default:"없음" }}" data-details="{{ row.3|default:"없음" }}">
+                                        <td>{{ row.0 }}</td>
+                                        <td>{{ row.1 }}</td>
+                                        <td>{{ row.2|default:"없음" }}</td>
+                                        <td>{{ row.3|default:"없음" }}</td>
+                                    </tr>
+                                  {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">검색 결과가 없습니다.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
                   <!-- Detail area -->
                   <div class="col-md-12 detail-area mt-3">
@@ -98,29 +100,83 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          const rows = document.querySelectorAll('#result-body tr');
-
-          rows.forEach(row => {
-              row.addEventListener('click', function () {
-                  rows.forEach(r => r.classList.remove('selected'));
-                  this.classList.add('selected');
-
-                  const code = this.getAttribute('data-code');
-                  const name = this.getAttribute('data-name');
-                  const category = this.getAttribute('data-category');
-                  const details = this.getAttribute('data-details');
-
-                  const detailContent = document.getElementById('detail-content');
-                  detailContent.innerHTML = `
-                      <p><strong>불완전 상병 코드:</strong> ${code}</p>
-                      <p><strong>불완전 상병명:</strong> ${name}</p>
-                      <p><strong>청구 카테고리:</strong> ${category}</p>
-                      <p><strong>세부 청구 항목:</strong> ${details}</p>
-                  `;
+    document.addEventListener('DOMContentLoaded', function () {
+      const rows = document.querySelectorAll('#result-body tr');
+  
+      rows.forEach(row => {
+          row.addEventListener('click', function () {
+              rows.forEach(r => r.classList.remove('selected'));
+              this.classList.add('selected');
+  
+              const code = this.getAttribute('data-code');
+              const name = this.getAttribute('data-name');
+              const category = this.getAttribute('data-category');
+              const details = this.getAttribute('data-details');
+  
+              const detailContent = document.getElementById('detail-content');
+              
+              // 'details'를 ' | ' 기준으로 분리하여 각각 버튼으로 만들기
+              const detailsArray = details.split(' | ');
+              let buttonsHTML = '';
+              detailsArray.forEach(detail => {
+                  buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button> `;
+              });
+  
+              // 상세 정보 업데이트 (버튼을 포함하여)
+              detailContent.innerHTML = `
+                  <p><strong>불완전 상병 코드:</strong> ${code}</p>
+                  <p><strong>불완전 상병명:</strong> ${name}</p>
+                  <p><strong>청구 카테고리:</strong> ${category}</p>
+                  <p><strong>세부 청구 항목:</strong></p>
+                  ${buttonsHTML}
+              `;
+  
+              // 각 버튼에 클릭 이벤트 추가 (AJAX 요청)
+              const detailButtons = document.querySelectorAll('.detail-btn');
+              detailButtons.forEach(button => {
+                  button.addEventListener('click', function () {
+                      const detail = this.getAttribute('data-detail');
+  
+                      // AJAX 요청 시작
+                      fetch('/detail-action/', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'X-CSRFToken': getCookie('csrftoken')  // CSRF 토큰을 헤더에 추가
+                          },
+                          body: JSON.stringify({
+                              detail: detail,
+                              code: code
+                          })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          console.log(`서버에서 받은 응답: ${data.message}`);
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                      });
+                  });
               });
           });
       });
+  });
+  
+  // CSRF 토큰을 가져오는 함수 (Django에서 필요)
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
   </script>
 </body>
 
