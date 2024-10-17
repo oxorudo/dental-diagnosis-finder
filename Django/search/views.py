@@ -1,17 +1,22 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render
+
 from .models import DentalClaim
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
-from search.apps import global_searcher
-from django.views.decorators.csrf import csrf_exempt 
+from search.apps import global_searcher,global_url
+from django.views.decorators.csrf import csrf_exempt
+from Django.search.utils.GoogleSheet import get_sheet_data
+
 
 # KoELECTRA 모델 및 토크나이저 로드
 model_name = "jhgan/ko-sroberta-multitask"
 tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
 model = AutoModel.from_pretrained(model_name)
+
+
 
 # 텍스트를 임베딩으로 변환하는 함수
 def get_embeddings(texts):
@@ -140,12 +145,14 @@ def detail_action(request):
         # 클라이언트에서 받은 JSON 데이터를 파싱
         data = json.loads(request.body)
         detail = data.get('detail')
-        code = data.get('code')
 
-        # 서버 콘솔에 데이터 출력
-        print(f"Received detail: {detail}, code: {code}")
-
-        # 성공 응답
-        return JsonResponse({'message': f"Received {detail} for code {code}"})
+        sheet_data = global_url
+        
+        matching_row = sheet_data[sheet_data['세부 청구 항목 (키워드)'] == detail]
+        if not matching_row.empty:
+            link = matching_row.iloc[0]['URL  (tripletclover.com)']  # 첫 번째 일치 항목의 URL 반환
+            return JsonResponse({'link': link})
+        else:
+            return JsonResponse({'error': 'No matching link found'}, status=404)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -44,3 +44,14 @@ def get_sheet_data(
     df = pd.DataFrame(data[1:], columns=data[0])  # 첫 번째 행은 컬럼명으로 설정
     return df
 
+
+def get_url()->pd.DataFrame:
+    sheet_data = get_sheet_data(
+            api_key_path='/Users/mane/Documents/dental-diagnosis-finder/NLP/key.json',  # 자신의 API 키 경로
+            sheet_url='https://docs.google.com/spreadsheets/d/1PzFuHuF2DvMPdSI-TK4Kq5LjPwyGzIxH3Q0Drnqft20/edit?usp=sharing',
+            sheet_name='행위별 Category'
+        )
+    
+    return sheet_data
+
+
