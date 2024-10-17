@@ -17,7 +17,7 @@ class HangulSearch:
         'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
         ]
     
-    def get_chosung(self, text):
+    def get_chosung(self, text): # 데이터프레임 값들 초성 변환
         result = []
         for char in str(text):
             if 44032 <= ord(char) <= 55203:
@@ -27,36 +27,36 @@ class HangulSearch:
                 result.append(char)
         return ''.join(result)
 
-    def convert_eng_to_kor(self, eng_text):
+    def convert_eng_to_kor(self, eng_text): # 한영 변환
         return ''.join(self.eng_to_kor.get(char, char) for char in eng_text)
 
-    def is_chosung(self, text):
+    def is_chosung(self, text): #  검색어가 초성인지 판별
         return all(char in self.CHOSUNG_LIST for char in str(text))
 
-    def search_with_contains(self, data, query):
+    def search_with_contains(self, data, query): # 보정 전 검색어 포함 여부 검색
         return [item for item in data if query in item]
 
-    def search_with_partial_and_correction(self, data, query, threshold=60):
+    def search_with_partial_and_correction(self, data, query, threshold=60): # 유사한 검색어들 반환
         matches = process.extract(query, data, scorer=fuzz.partial_ratio, limit=15)
         return [match[0] for match in matches if match[1] >= threshold]
 
-    def search_with_chosung_inclusion(self, data, query):
+    def search_with_chosung_inclusion(self, data, query): # 초성 검색
         chosung_query = self.get_chosung(query)
         return [item for item in data if chosung_query in self.get_chosung(item)]
 
-    def search_with_options(self, data, query):
-        if query.startswith('K'):
+    def search_with_options(self, data, query): # 검색 옵션
+        if query.startswith('K'): # 검색어가 대문자 K로 시작하면 기본 검색
             return self.search_with_contains(data, query[1:])
 
-        if self.is_chosung(query):
+        if self.is_chosung(query): # 초성 검색어면 초성 검색 모드, 소문자 영어 검색어면 한영 변환 검색
             return self.search_with_chosung_inclusion(data, query)
 
         if all(char.isalpha() and char.islower() for char in query):
-            query = unicode.join_jamos(self.convert_eng_to_kor(query))
+            query = unicode.join_jamos(self.convert_eng_to_kor(query)) # 한국어 풀어쓰기 해제
 
         return self.search_with_partial_and_correction(data, query)
 
-    def search_df_with_options(self, query):
+    def search_df_with_options(self, query): # 보정 전에 순수 검색어로 검색 후 결과 없으면 보정 검색하는 옵션
         results = self.search_with_contains(self.df.applymap(str).values.flatten(), query)
         if not results:
             for column in self.df.columns:
