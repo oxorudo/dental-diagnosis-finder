@@ -39,7 +39,7 @@ def search_view(request):
 
     if query:
         # 검색어가 있을 때만 검색을 수행
-        search_results, corrected_query = global_searcher.search_in_dataframe(query)
+        search_results = global_searcher.search_df_with_options(query)
         results = search_results.values.tolist()
 
     context = {
