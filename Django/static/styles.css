@@ -1,262 +1,153 @@
-/* styles.css */
+/* General Styles */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f9fa;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9fb;
     color: #333;
-    
 }
 
 .container-fluid {
-    padding-top: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar {
-    background-color: #f1f1f1;
-    padding: 15px;
-    height: 100vh; /* 전체 화면에 사이드바 고정 */
+    background-color: #f3f4f7;
+    height: 100%;
     border-right: 1px solid #ddd;
 }
 
 .sidebar .nav-link {
-    color: #333;
-    font-weight: bold;
+    font-weight: 500;
+    color: #007bff;
     padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
     transition: background-color 0.3s ease;
 }
 
-.sidebar .nav-link.active, 
+.sidebar .nav-link.active,
 .sidebar .nav-link:hover {
-    background-color: #007bff;
-    color: white;
+    background-color: #d6eaff;
+    color: #0056b3;
 }
 
-.main-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Search Bar */
 .search-area {
-    margin-top: 10px;
+    background-color: #e9f0fa;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 input#search-input {
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #ddd;
-    transition: box-shadow 0.3s ease;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ccd1d9;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    flex-grow: 1;
 }
 
 input#search-input:focus {
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
     border-color: #007bff;
-}
-
-button[type="submit"] {
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
-    margin-right: 10px;
-}
-
-button[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
-.result-table {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* 테이블 행 호버 효과 */
-table tbody tr:hover {
-    background-color: #f1f1f1; /* 행에 마우스를 올렸을 때 밝은 회색으로 배경 변경 */
-    cursor: pointer; /* 커서를 포인터 모양으로 변경 */
-}
-
-/* #result-body tr.selected {
-    background-color: #646b73;
-    color: white;
-} */
-
-.detail-area .card {
-    border-radius: 2.5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    max-height: 300px; /* 최대 높이 설정 */
-    overflow-y: auto; /* 상세 정보 내용이 길면 스크롤 가능하게 설정 */
-}
-
-.detail-area .card-body {
-    padding: 20px;
-    background-color: #fff;
-}
-
-.detail-area .card-title {
-    font-weight: bold;
-    color: #007bff;
-}
-
-/* Scrollable table body styling */
-.result-table div {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.result-table div::-webkit-scrollbar {
-    width: 10px;
-}
-
-.result-table div::-webkit-scrollbar-thumb {
-    background-color: #ddd;
-    border-radius: 5px;
-}
-
-/* 'table-striped' 스타일을 없애거나 적용하지 않음 */
-.table tbody tr {
-    background-color: #ffffff; /* 모든 행을 흰색 배경으로 설정 */
-}
-
-/* 1. 그림자와 둥근 모서리가 있는 테이블 */
-.table {
-    width: 100%;
-    /* border-collapse: collapse; */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.table th, .table td {
-    padding: 5px;
-    text-align: left;
-}
-
-.table thead {
-    background-color: #f4f4f4;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
 
 button.btn-outline-secondary {
-    padding: 8px 6px; /* 버튼의 안쪽 여백(패딩) */
-    margin: 2px 2px; /* 버튼 사이 간격 */
-    font-size: 14px; /* 폰트 크기 조정 */
-    border-radius: 5px; /* 모서리 둥글게 */
+    margin-top: 5px;
 }
 
-button.btn-outline-secondary:hover {
-    background-color: #6c757d; /* 마우스 오버 시 배경색 변경 */
-    color: white; /* 글자색 변경 */
-}
-
-.form-control {
-    border-radius: 1px; /* 입력 필드 모서리를 약간 둥글게 */
-    height: 50px; /* 입력 필드의 높이 설정 */
-}
-
-.search-btn {
-    height: 50px; /* 버튼 높이를 입력 필드와 동일하게 설정 */
-  
-    padding: 0 20px; /* 버튼 안쪽 여백 */
-    background-color: #007bff; /* 버튼 배경색 */
-    color: white; /* 텍스트 색상 */
-    border: none; /* 버튼 테두리 제거 */
+button.search-btn {
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 20px;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
     white-space: nowrap; /* 텍스트 줄바꿈 방지 */
 }
 
-.d-flex{
-    display: flex;
-    flex-wrap: nowrap;
-}
-.result-table table, .result-table th, .result-table td {
-    border: 1px solid #dee2e6; /* 각 셀의 테두리 추가 */
-    border-collapse: collapse; /* 테두리 겹침 방지 */
+
+
+button.search-btn:hover {
+    background-color: #0056b3;
 }
 
-.result-table th, .result-table td {
-    padding: 12px; /* 셀 내부 여백 */
-    text-align: left;
-}
 
-.result-table th {
-    background-color: #f8f9fa; /* 헤더 배경색을 밝게 설정 */
-    font-weight: bold; /* 헤더 텍스트 강조 */
-}
-
-/* 각 열에 고정된 너비를 설정 */
-.col-code {
-    width: 15%; /* 상병 코드 열 */
-}
-
-.col-name {
-    width: 35%; /* 상병명 열 */
-}
-
-.col-category {
-    width: 25%; /* 카테고리 열 */
-}
-
-.col-details {
-    width: 25%; /* 세부 청구 항목 열 */
-}
-
-.table-fixed-header {
+.table {
     width: 100%;
-    border-collapse: collapse; /* 테두리 겹침 방지 */
+    border-collapse: collapse;
 }
 
 .table-fixed-header th {
-    background-color: #f8f9fa; /* 헤더 배경색 */
-    position: sticky; /* 고정된 헤더 */
-    top: 0; /* 최상단에 고정 */
-    z-index: 10; /* 헤더가 본문 위에 오도록 z-index 조정 */
-    padding: 12px;
-    border-bottom: 1px solid #dee2e6;
-    text-align: left;
-    font-weight: bold;
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:hover {
+    background-color: #f1f7ff;
 }
 
 .table-body-wrapper {
-    border: 0.5px solid #dee2e6;
-    max-height: 400px; /* 테이블 본문 스크롤 */
+    max-height: 100%;
     overflow-y: auto;
 }
 
-.table tbody td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
+.table-body-wrapper::-webkit-scrollbar {
+    width: 8px;
 }
 
-/* 자동완성 제안 리스트 스타일 */
-.autocomplete-items {
-    position: absolute;
-    border: 1px solid #d4d4d4;
-    background-color: white;
-    z-index: 99;
-    top: 100%; /* 입력 필드 바로 아래에 배치 */
-    left: 0;
-    right: 0;
-    max-height: 200px;
-    overflow-y: auto; /* 스크롤 가능하게 */
-    display: block;
+.table-body-wrapper::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 4px;
 }
 
-.autocomplete-items div {
-    padding: 10px;
-    cursor: pointer;
-    background-color: #fff;
-    border-bottom: 1px solid #d4d4d4;
+/* Detail Section */
+.detail-area .card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9fb;
+    height: 100%;
 }
 
-.autocomplete-items div:hover {
-    background-color: #e9e9e9;
+.detail-area .card-title {
+    color: #007bff;
+    font-weight: 500;
 }
 
-/* 검색창 외부 클릭 시 자동완성 목록 숨기기 */
-.autocomplete-items.hidden {
-    display: none;
+
+/* 테이블의 최대 높이를 설정하고 스크롤 가능하도록 수정 */
+.result-table {
+    margin-left: 15px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* 테두리 내부에서 스크롤되는 효과를 위해 overflow 설정 */
 }
+
+.table-body-wrapper {
+    max-height: 300px; /* 테이블 본문에 대한 최대 높이 지정 */
+    overflow-y: auto; /* 세로 스크롤 허용 */
+}
+
+.table-body-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-body-wrapper::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 4px;
+}
+
+/* 테이블 헤더 고정 */
+.table-fixed-header th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    z-index: 2; /* 헤더가 본문 위에 유지되도록 z-index 설정 */
+}
+
