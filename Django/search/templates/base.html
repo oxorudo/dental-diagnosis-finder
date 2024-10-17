@@ -15,9 +15,8 @@
   <body>
     <div class="container">
       <div class="sidebar">
-        <h2>병명</h2>
+        <h2>병명</h2> 
         <ul>
-          <p>full_hierarchy: {{ full_hierarchy }}</p>
           {% for parent_code, parent_data in full_hierarchy.items %}
             <li>
               <strong>{{ parent_code }}
@@ -56,7 +55,8 @@
       </div>
 
       <div class="content">
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
       </div>
     </div>
 

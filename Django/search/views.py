@@ -1,14 +1,9 @@
-from django.http import JsonResponse
 from django.shortcuts import render
 from .models import DentalClaim
-from .forms import SearchForm
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
-from django.db.models import Q
-from django.core.cache import cache
-
-from search.apps import global_sheet_data, global_searcher
+from search.apps import global_searcher
 
 # KoELECTRA 모델 및 토크나이저 로드
 model_name = "jhgan/ko-sroberta-multitask"
@@ -21,7 +16,6 @@ def get_embeddings(texts):
     with torch.no_grad():
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()  # [CLS] 토큰 벡터만 사용
-
 
 # 오탈자 교정 함수
 def correct_typo(input_word, dictionary):
@@ -36,44 +30,25 @@ def correct_typo(input_word, dictionary):
 
 
 def search_view(request):
-    data = []
-    if request.method == "GET":
-        query = request.GET.get("q", "").strip()  # 검색어 가져오기
+    query = request.GET.get("q", "").strip()
+    results = []
+    corrected_query = None
+
+    # full_hierarchy는 항상 가져오기 (검색과 무관하게)
+    full_hierarchy = build_hierarchy()  # 전체 계층 구조 가져오기
+
+    if query:
+        # 검색어가 있을 때만 검색을 수행
         search_results, corrected_query = global_searcher.search_in_dataframe(query)
         results = search_results.values.tolist()
-        # 결과 출력
-        if corrected_query: 
-            print(
-                f"'{query}'에 대한 검색 결과가 없습니다. 대신 '{corrected_query}'로 검색한 결과입니다:"
-            )
-        else:
-            print(f"'{query}'에 대한 검색 결과입니다:")
-            
-        if not query:
-            # 검색어가 없으면 빈 리스트를 반환
-            return render(request, "search.html", {"results": [], "query": query})
-        
-    return render(
-        request, "search.html", {"results": results, "query": query}
-    )
 
+    context = {
+        "results": results,              # 검색 결과
+        "query": query,                  # 검색어
+        "full_hierarchy": full_hierarchy  # 사이드바에 필요한 전체 계층 구조
+    }
 
-def autocomplete_view(request):
-    query = request.GET.get("q", "")
-    if query:
-        suggestions = (
-            DentalClaim.objects.filter(
-                Q(incomplete_disease_code__icontains=query)
-                | Q(incomplete_disease_name__icontains=query)
-            )
-            .values_list("incomplete_disease_name", flat=True)
-            .distinct()
-        )  # 중복 제거
-    else:
-        suggestions = []
-
-    return JsonResponse(list(suggestions), safe=False)
-
+    return render(request, "search.html", context)
 
 def get_disease_hierarchy():
     claims = DentalClaim.objects.all()
@@ -105,7 +80,7 @@ def get_middle_categories(hierarchy):
         if (code[-2].isdigit() and code[-1] == "~") or (
             code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 1
         ):
-            parent_code = code.rsplit(".", 1)[0] + ".~"  # 대분류 코드
+            parent_code = code.rsplit(".", 1)[0] + "."  # 대분류 코드
             if parent_code not in middle_categories:
                 middle_categories[parent_code] = {
                     "name": hierarchy.get(parent_code, {}).get("name", ""),
@@ -128,13 +103,10 @@ def get_sub_categories(middle_categories):
 
         # 하위분류 코드 확인 (숫자가 2자리 또는 3자리인 경우)
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) in {2, 3}:
-            parent_code = ".".join(code.split(".")[:-1]) + ".~"  # 대분류 코드
-            if parent_code in middle_categories:  # 대분류가 존재하는 경우
-                # 대분류에 하위분류 추가
-                middle_categories[parent_code]["children"][code] = {
-                    "name": name,
-                    "type": "sub",
-                }
+            parent_code = ".".join(code.split(".")[:-1]) + "."  # 중분류 코드
+            if parent_code in middle_categories:  # 중분류가 존재하는 경우
+                # 중분류에 하위분류 추가
+                middle_categories[parent_code]["children"][code] = {"name": name, 'type': 'sub'}
 
     return middle_categories
 
@@ -157,13 +129,3 @@ def build_hierarchy():
             )
 
     return full_hierarchy
-
-
-def sidebar_view(request):
-    full_hierarchy = build_hierarchy()  # 전체 계층 구조 가져오기
-
-    context = {
-        "full_hierarchy": full_hierarchy,  # 계층 구조를 context에 추가
-    }
-    print(full_hierarchy,"ㅇㅇㅇ"*1000)
-    return render(request, "base.html", context)
