@@ -13,10 +13,11 @@ body {
 
 .sidebar {
     background-color: #f3f4f7;
-    height: 100%;
+    height: 100vh;
+    /* 전체 높이를 뷰포트 높이로 설정 */
     border-right: 1px solid #ddd;
-    overflow-y: auto;
-
+    overflow-y: scroll;
+    /* 세로 스크롤 활성화 */
 }
 
 .sidebar .nav-link {
@@ -71,12 +72,9 @@ button.search-btn {
     /* 텍스트 줄바꿈 방지 */
 }
 
-
-
 button.search-btn:hover {
     background-color: #0056b3;
 }
-
 
 .table {
     width: 100%;
@@ -121,7 +119,6 @@ button.search-btn:hover {
     color: #007bff;
     font-weight: 500;
 }
-
 
 /* 테이블의 최대 높이를 설정하고 스크롤 가능하도록 수정 */
 .result-table {
