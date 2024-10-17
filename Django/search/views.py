@@ -6,7 +6,7 @@ from .models import DentalClaim
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
-from search.apps import global_searcher
+from search.apps import global_searcher,global_url
 from django.views.decorators.csrf import csrf_exempt
 from Django.search.utils.GoogleSheet import get_sheet_data
 
@@ -146,23 +146,13 @@ def detail_action(request):
         data = json.loads(request.body)
         detail = data.get('detail')
 
-        sheet_data = get_sheet_data(
-            api_key_path='C:/Users/user/Desktop/Project/Personal/Dental/Code/key.json',  # 자신의 API 키 경로
-            sheet_url='https://docs.google.com/spreadsheets/d/1PzFuHuF2DvMPdSI-TK4Kq5LjPwyGzIxH3Q0Drnqft20/edit?usp=sharing',
-            sheet_name='행위별 Category'
-        )
-
+        sheet_data = global_url
+        
         matching_row = sheet_data[sheet_data['세부 청구 항목 (키워드)'] == detail]
         if not matching_row.empty:
             link = matching_row.iloc[0]['URL  (tripletclover.com)']  # 첫 번째 일치 항목의 URL 반환
             return JsonResponse({'link': link})
         else:
             return JsonResponse({'error': 'No matching link found'}, status=404)
-
-        # code = data.get('code')
-
-        # # 서버 콘솔에 데이터 출력
-        # print(f"Received detail: {detail}, code: {code}")
-
 
     return JsonResponse({'error': 'Invalid request'}, status=400)

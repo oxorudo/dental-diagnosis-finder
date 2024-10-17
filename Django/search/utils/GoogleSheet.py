@@ -45,13 +45,13 @@ def get_sheet_data(
     return df
 
 
-# def get_url()->pd.DataFrame:
-#     sheet_data = get_sheet_data(
-#             api_key_path='C:/Users/user/Desktop/Project/Personal/Dental/Code/key.json',  # 자신의 API 키 경로
-#             sheet_url='https://docs.google.com/spreadsheets/d/1PzFuHuF2DvMPdSI-TK4Kq5LjPwyGzIxH3Q0Drnqft20/edit?usp=sharing',
-#             sheet_name='행위별 Category'
-#         )
+def get_url()->pd.DataFrame:
+    sheet_data = get_sheet_data(
+            api_key_path='/Users/mane/Documents/dental-diagnosis-finder/NLP/key.json',  # 자신의 API 키 경로
+            sheet_url='https://docs.google.com/spreadsheets/d/1PzFuHuF2DvMPdSI-TK4Kq5LjPwyGzIxH3Q0Drnqft20/edit?usp=sharing',
+            sheet_name='행위별 Category'
+        )
     
-#     return sheet_data
+    return sheet_data
 
 
