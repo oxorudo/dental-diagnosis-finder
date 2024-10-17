@@ -25,17 +25,19 @@
                             {% for middle_code, middle_data in parent_data.children.items %}
                             <li>
                                 <a href="#" class="middle-category" data-code="{{ middle_code }}">{{ middle_code }} - {{ middle_data.name }}</a>
-                                {% if middle_data.children %}  {# 하위 분류가 있는 경우 #}
-                                <ul style="display:none;">
-                                    {% for sub_code, sub_data in middle_data.children.items %}
-                                    <li>
-                                        <a href="#" class="sub-category" data-code="{{ sub_code }}">{{ sub_code }} - {{ sub_data.name }}</a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                                {% endif %}
+                                {% with subcategories=middle_data.children|get_subcategories %}
+                                    {% if subcategories %}
+                                        <ul style="display:none;">
+                                            {% for sub_code, sub_data in subcategories.items %}
+                                            <li>
+                                                <a href="#" class="sub-category" data-code="{{ sub_code }}">{{ sub_code }} - {{ sub_data.name }}</a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endwith %}
                             </li>
-                            {% endfor %}
+                        {% endfor %}
                         </ul>
                     </li>
                     {% empty %}
@@ -44,7 +46,6 @@
                 </ul>
             </div>
         </nav>
-
         <!-- Main content -->
         <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4 py-4">
             <!-- Search bar -->
@@ -133,16 +134,17 @@
                 });
             });
 
-            // 항목 클릭 시 검색
+            // 항목 클릭 시 입력창에 병명 전달
             const links = document.querySelectorAll('.major-category, .middle-category, .sub-category');
 
             links.forEach(link => {
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
                     const code = this.getAttribute('data-code');  // 선택된 항목의 코드 가져오기
+                    const name = this.textContent.split(' - ')[1];  // 병명 가져오기
                     
                     const searchInput = document.getElementById('search-input');
-                    searchInput.value = code;  // 검색창에 코드 입력
+                    searchInput.value = name;  // 검색창에 병명 입력
                     this.closest('form').submit();  // 폼 제출 (자동 검색)
                 });
             });
@@ -229,6 +231,4 @@
         }
     </script>
 </body>
-
 </html>
-
