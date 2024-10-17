@@ -68,6 +68,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'search.sidebar_processors.full_hierarchy_processor',  # 여기에 추가
             ],
         },
     },
