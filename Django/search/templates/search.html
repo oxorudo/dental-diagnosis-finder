@@ -28,12 +28,12 @@
                     </thead>
                     <tbody>
                         {% if results %}
-                            {% for result in results %}
+                            {% for row in results %}
                                 <tr>
-                                    <td>{{ result.incomplete_disease_code }}</td>
-                                    <td>{{ result.incomplete_disease_name }}</td>
-                                    <td>{{ result.claim_category|default:"없음" }}</td>
-                                    <td>{{ result.claim_detail|default:"없음" }}</td>
+                                    <td>{{ row.0 }}</td>
+                                    <td>{{ row.1 }}</td>
+                                    <td>{{ row.2|default:"없음" }}</td>
+                                    <td>{{ row.3|default:"없음" }}</td>
                                 </tr>
                             {% endfor %}
                         {% else %}

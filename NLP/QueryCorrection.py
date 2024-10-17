@@ -1,5 +1,5 @@
 
-from unicode import join_jamos
+from .unicode import join_jamos
 from rapidfuzz import process, fuzz
 
 class HangulSearch:
@@ -31,3 +31,29 @@ class HangulSearch:
                 corrected = closest_match[0] if max_score > 50 else query  # 유사도 50% 이상인 경우만 반환
 
         return corrected
+    
+    def search_in_dataframe(self, query):
+        # 입력된 query에 해당하는 모든 열에서 부분일치 검색
+        result = self.dataframe[
+            self.dataframe.apply(
+                lambda row: row.astype(str)
+                .str.contains(query, case=False, na=False)
+                .any(),
+                axis=1,
+            )
+        ]
+
+        # 부분일치 결과가 없으면 오탈자 보정을 통해 검색
+        if result.empty:
+            corrected_query = self.correct_query(query)
+            result = self.dataframe[
+                self.dataframe.apply(
+                    lambda row: row.astype(str)
+                    .str.contains(corrected_query, case=False, na=False)
+                    .any(),
+                    axis=1,
+                )
+            ]
+            return result, corrected_query
+
+        return result, None

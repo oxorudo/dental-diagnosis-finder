@@ -17,6 +17,7 @@
       <div class="sidebar">
         <h2>병명</h2>
         <ul>
+          <p>full_hierarchy: {{ full_hierarchy }}</p>
           {% for parent_code, parent_data in full_hierarchy.items %}
             <li>
               <strong>{{ parent_code }}

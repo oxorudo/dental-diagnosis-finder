@@ -8,12 +8,12 @@ import difflib
 from django.db.models import Q
 from django.core.cache import cache
 
+from search.apps import global_sheet_data, global_searcher
 
 # KoELECTRA 모델 및 토크나이저 로드
 model_name = "jhgan/ko-sroberta-multitask"
 tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
 model = AutoModel.from_pretrained(model_name)
-
 
 # 텍스트를 임베딩으로 변환하는 함수
 def get_embeddings(texts):
@@ -36,37 +36,25 @@ def correct_typo(input_word, dictionary):
 
 
 def search_view(request):
-    form = SearchForm()
     data = []
     if request.method == "GET":
         query = request.GET.get("q", "").strip()  # 검색어 가져오기
-        print(query)
+        search_results, corrected_query = global_searcher.search_in_dataframe(query)
+        results = search_results.values.tolist()
+        # 결과 출력
+        if corrected_query: 
+            print(
+                f"'{query}'에 대한 검색 결과가 없습니다. 대신 '{corrected_query}'로 검색한 결과입니다:"
+            )
+        else:
+            print(f"'{query}'에 대한 검색 결과입니다:")
+            
         if not query:
             # 검색어가 없으면 빈 리스트를 반환
             return render(request, "search.html", {"results": [], "query": query})
-
-        # 검색어가 있을 때 필터링
-        results = DentalClaim.objects.filter(
-            Q(incomplete_disease_code__icontains=query)
-            | Q(incomplete_disease_name__icontains=query)
-            | Q(claim_category__icontains=query)
-            | Q(claim_detail__icontains=query)
-        )
-        print(f"Results: {list(results)}")
-
-        # QuerySet을 딕셔너리 형태로 변환
-        data = list(
-            results.values(
-                "incomplete_disease_code",
-                "incomplete_disease_name",
-                "claim_category",
-                "claim_detail",
-            )
-        )
-
-    # 결과와 검색어를 템플릿으로 전달
+        
     return render(
-        request, "search.html", {"results": results, "query": query, "data": data}
+        request, "search.html", {"results": results, "query": query}
     )
 
 
@@ -174,4 +162,5 @@ def sidebar_view(request):
     context = {
         "full_hierarchy": full_hierarchy,  # 계층 구조를 context에 추가
     }
+    print(full_hierarchy,"ㅇㅇㅇ"*1000)
     return render(request, "base.html", context)

@@ -6,5 +6,4 @@ urlpatterns = [
     # path("search/", views.search, name="search"),  # 검색 페이지 추가
     path('', views.search_view, name='home'),
     path('search/', views.search_view, name='search_view'),
-    path('autocomplete/', views.autocomplete_view, name='autocomplete_view'),
 ]

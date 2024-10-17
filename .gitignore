@@ -2,3 +2,4 @@ googlesheet/key.json
 **/key.json
 __pycache__/
 **/*.py[cod]
+*.pyc
