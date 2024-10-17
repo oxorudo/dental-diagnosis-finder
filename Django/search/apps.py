@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from .utils.GoogleSheet import get_sheet_data
-from NLP.QueryCorrection import HangulSearch
+from .utils.QueryCorrection import HangulSearch
 
 global_sheet_data = None  # 전역 변수로 선언
 
