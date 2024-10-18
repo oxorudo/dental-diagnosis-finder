@@ -1,6 +1,10 @@
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 def get_sheet_data(
     api_key_path: str, 
@@ -47,7 +51,7 @@ def get_sheet_data(
 
 def get_url()->pd.DataFrame:
     sheet_data = get_sheet_data(
-            api_key_path='/Users/mane/Documents/dental-diagnosis-finder/NLP/key.json',  # 자신의 API 키 경로
+            api_key_path='D:\\workspace\\dental-diagnosis-finder\\NLP\\key.json',  # 자신의 API 키 경로
             sheet_url='https://docs.google.com/spreadsheets/d/1PzFuHuF2DvMPdSI-TK4Kq5LjPwyGzIxH3Q0Drnqft20/edit?usp=sharing',
             sheet_name='행위별 Category'
         )

@@ -1,5 +1,6 @@
 from rapidfuzz import process, fuzz
 from Django.search.utils import unicode
+import re
 
 class HangulSearch:
 
@@ -45,6 +46,7 @@ class HangulSearch:
         return [item for item in data if chosung_query in self.get_chosung(item)]
 
     def search_with_options(self, data, query): # 검색 옵션
+
         if query.startswith('K'): # 검색어가 대문자 K로 시작하면 기본 검색
             return self.search_with_contains(data, query[1:])
 
