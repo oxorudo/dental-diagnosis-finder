@@ -83,44 +83,66 @@ document.addEventListener('DOMContentLoaded', function () {
       
 
       // Update detail content
-      detailContent.innerHTML = `
-                  <p><strong>불완전 상병 코드:</strong> ${code}</p>
-                  <p><strong>불완전 상병명:</strong> ${name}</p>
-                  <p><strong>청구 카테고리:</strong> ${category}</p>
-                  <p><strong>세부 청구 항목:</strong></p>
-                  ${buttonsHTML}
-              `;
+      if (detailContent) {
+        detailContent.innerHTML = `
+            <p><strong>불완전 상병 코드:</strong> ${code}</p>
+            <p><strong>불완전 상병명:</strong> ${name}</p>
+            <p><strong>청구 카테고리:</strong> ${category}</p>
+            <p><strong>세부 청구 항목:</strong></p>
+            ${buttonsHTML}
+        `;
+      } else {
+          console.error("Element with id 'detail-content' not found");
+      }
 
       // Add click events to buttons (AJAX request)
       const detailButtons = document.querySelectorAll('.detail-btn');
+        
       detailButtons.forEach(button => {
-        button.addEventListener('click', function () {
-          const detail = this.getAttribute('data-detail');
+        // 이전에 등록된 이벤트 리스너 제거
+        button.removeEventListener('click', handleDetailButtonClick);
 
-          // AJAX request
-          fetch('/detail-action/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': getCookie('csrftoken') // CSRF 토큰을 헤더에 추가
-            },
-            body: JSON.stringify({detail: detail, code: code})
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.link) {
-                window.open(data.link, '_blank'); // 링크로 리다이렉트
-              } else {
-                alert('링크를 찾을 수 없습니다.');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-            });
-        });
+        // 새로운 이벤트 리스너 추가
+        button.addEventListener('click', handleDetailButtonClick);
       });
     });
   });
+
+  // 이벤트 핸들러 함수(세부 청구 항목 버튼)
+function handleDetailButtonClick(event) {
+  const button = event.target;
+  const detail = button.getAttribute('data-detail');
+
+  // 사용자에게 상세 정보를 볼 것인지 묻는 confirm 대화 상자
+  const userConfirmation = window.confirm("상세 정보를 보시겠습니까?");
+
+  if (userConfirmation) {
+    // 사용자가 '예'를 클릭한 경우에만 서버 요청 실행
+    fetch("/detail-action/", {  
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({ detail: detail })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.link) {
+        // 팝업 창으로 링크 열기
+        window.open(data.link, '_blank');
+      } else {
+        alert('링크를 찾을 수 없습니다.');
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+  } else {
+    // 사용자가 '아니오'를 클릭하면 아무것도 하지 않음
+    alert('상세 정보를 보지 않았습니다.');
+  }
+}
 
   // "추가" 버튼 클릭 이벤트
   const addButton = document.getElementById('add-button');
@@ -133,19 +155,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document
-      .cookie
-      .split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
+    // Utility function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
       }
+      return cookieValue;
     }
-  }
-  return cookieValue;
-}
