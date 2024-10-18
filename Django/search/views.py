@@ -13,23 +13,52 @@ import re
 
 
 def search_view(request):
-    query = request.GET.get("q", "").strip()
+    query = request.GET.get("q", "").strip()  # 검색어 가져오기
     results = []
-    corrected_query = None
-
-    # full_hierarchy는 항상 가져오기 (검색과 무관하게)
-    full_hierarchy = build_hierarchy()  # 전체 계층 구조 가져오기
+    
+    # 카테고리별 색상 지정
+    category_colors = {
+        '1. 청구 기초 및 기본진료': '#495057',  # 진한 회색
+        '2. 보존': '#238b45',  # 진한 녹색
+        '3. 근관치료': '#d95f0e',  # 진한 주황색
+        '4. 치주': '#cc4c02',  # 진한 주황색
+        '5. 외과': '#a50f15',  # 진한 빨간색
+        '6. 임플란트': '#2171b5',  # 진한 파란색
+        '7. 틀니': '#08519c',  # 진한 파란색
+        '8. 턱관절': '#6a51a3',  # 진한 보라색
+        '9. 기타': '#343a40'  # 진한 회색
+    }
+    
+    # 전체 계층 구조 가져오기
+    full_hierarchy = build_hierarchy() 
 
     if query:
         search_results = global_searcher.search_df_with_options(query)
-        results = search_results.values.tolist()
+        
+        # 검색 결과 가공
+        for row in search_results.values.tolist():
+            split_categories = row[2].split(' | ') if row[2] else []
+            split_details = row[3].split(' | ') if row[3] else []
+
+            # 각 카테고리에 색상 추가
+            categories_with_colors = [
+                {'name': category, 'color': category_colors.get(category, '#6c757d')}
+                for category in split_categories
+            ]
+
+            # 결과에 카테고리와 세부 청구 항목 추가
+            results.append({
+                'code': row[0],
+                'name': row[1],
+                'categories': categories_with_colors,  # 카테고리와 색상 정보 함께 저장
+                'split_details': split_details
+            })
 
     context = {
         "results": results,  # 검색 결과
         "query": query,  # 검색어
         "full_hierarchy": full_hierarchy,  # 사이드바에 필요한 전체 계층 구조
     }
-    print(results)
 
     return render(request, "search.html", context)
 
