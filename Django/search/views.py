@@ -22,9 +22,9 @@ def search_view(request):
 
     if query:
         # 검색어가 있을 때만 검색을 수행
-        if '-' in query:
-            query = re.sub(r'^[A-Z0-9]+\.?\d*~? - ', '', query)
-    
+        if "-" in query:
+            query = re.sub(r"^[A-Z0-9]+\.?\d*~? - ", "", query)
+
     search_results = global_searcher.search_df_with_options(query)
     results = search_results.values.tolist()
 
@@ -68,13 +68,19 @@ def get_middle_categories(hierarchy):
         if (code[-2].isdigit() and code[-1] == "~") or (
             code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 1
         ):
+            # 물결표시가 있는 경우 제거
+            cleaned_code = code.rstrip("~")
             parent_code = code.rsplit(".", 1)[0] + "."  # 대분류 코드
+            # 대분류가 존재하지 않으면 추가
             if parent_code not in middle_categories:
                 middle_categories[parent_code] = {
-                    "name": hierarchy.get(parent_code, {}).get("name", ""),
+                    "name": hierarchy.get(parent_code, {}).get(
+                        "name", ""
+                    ),  # 대분류 이름 가져오기
                     "children": {},
                 }
-            middle_categories[parent_code]["children"][code] = {
+            # 중분류 추가
+            middle_categories[parent_code]["children"][cleaned_code] = {
                 "name": name,
                 "children": {},  # 하위분류를 위한 children 초기화
             }
@@ -89,15 +95,30 @@ def get_sub_categories(middle_categories):
         code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
         name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
 
-        # 하위분류 코드 확인 (숫자가 2자리 또는 3자리인 경우)
-        if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) in {2, 3}:
-            parent_code = ".".join(code.split(".")[:-1]) + "."  # 중분류 코드
-            if parent_code in middle_categories:  # 중분류가 존재하는 경우
-                # 중분류에 하위분류 추가
-                middle_categories[parent_code]["children"][code] = {
-                    "name": name,
-                    "type": "sub",
-                }
+        # 하위분류 코드 확인 (숫자가 2자리인 경우)
+        if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 2:
+            # 하위분류는 중분류 코드에 속해야 함
+            # 부모 코드는 마침표 이후 첫 번째 숫자를 기준으로 중분류 코드로 판단
+            parent_code = code[:-1]  # 대분류가 아닌 중분류 코드로 설정
+            # 중분류 코드가 middle_categories에 있는지 확인
+            for major_code, major_data in middle_categories.items():
+                if parent_code in major_data["children"]:  # 중분류가 존재하는 경우
+                    # 중분류에 하위분류 추가
+                    major_data["children"][parent_code]["children"][code] = {
+                        "name": name,
+                        "type": "sub",
+                    }
+
+        if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 3:
+            parent_code = code[:-2]  # 대분류가 아닌 중분류 코드로 설정
+            # 중분류 코드가 middle_categories에 있는지 확인
+            for major_code, major_data in middle_categories.items():
+                if parent_code in major_data["children"]:  # 중분류가 존재하는 경우
+                    # 중분류에 하위분류 추가
+                    major_data["children"][parent_code]["children"][code] = {
+                        "name": name,
+                        "type": "sub",
+                    }
 
     return middle_categories
 
