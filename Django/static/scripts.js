@@ -53,6 +53,19 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
+    const categoryColors = {
+      '1. 청구 기초 및 기본진료': '#495057', // 더 진한 회색
+      '2. 보존': '#238b45', // 진한 녹색
+      '3. 근관치료': '#d95f0e', // 진한 주황색
+      '4. 치주': '#cc4c02', // 더 진한 주황색
+      '5. 외과': '#a50f15', // 진한 빨간색
+      '6. 임플란트': '#2171b5', // 진한 파란색
+      '7. 틀니': '#08519c', // 더 진한 파란색
+      '8. 턱관절': '#6a51a3', // 진한 보라색
+      '9. 기타': '#343a40' // 더 진한 회색
+  };
+  
+
     const rows = document.querySelectorAll('#result-body tr');
 
     rows.forEach(row => {
@@ -64,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const code = this.getAttribute('data-code');
         const name = this.getAttribute('data-name');
-        const category = this.getAttribute('data-category');
+        const categories = this.getAttribute('data-category');
         const details = this.getAttribute('data-details');
 
         const detailContent = document.getElementById('detail-content');
@@ -73,14 +86,26 @@ document.addEventListener('DOMContentLoaded', function () {
         const detailsArray = details.split(' | ');
         let buttonsHTML = '';
         detailsArray.forEach(detail => {
-          buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button> `;
+          if (detail === '없음') {
+              buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" disabled>${detail}</button> `;
+          } else {
+              buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button> `;
+          }
+        });
+
+        // 카테고리 버튼 생성 및 색상 적용
+        let cbuttonsHTML = '';
+        const categoryArray = categories.split(' | ');
+        categoryArray.forEach(category => {
+            const color = categoryColors[category] || '#6c757d'; // 카테고리가 없는 경우 기본 회색 사용
+            cbuttonsHTML += `<button class="btn btn-sm detail-btn" type="button" disabled style="background-color: ${color}; color: white;">${category}</button> `;
         });
 
         // Update detail content
         detailContent.innerHTML = `
                     <p><strong>불완전 상병 코드:</strong> ${code}</p>
                     <p><strong>불완전 상병명:</strong> ${name}</p>
-                    <p><strong>청구 카테고리:</strong> ${category}</p>
+                    <p><strong>청구 카테고리:</strong> ${cbuttonsHTML}</p>
                     <p><strong>세부 청구 항목:</strong></p>
                     ${buttonsHTML}
                 `;
