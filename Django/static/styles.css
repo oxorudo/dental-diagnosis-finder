@@ -66,8 +66,12 @@ input#search-input:focus {
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
 
-button.btn-outline-secondary {
+button.btn-outline-secondary, .btn-outline-secondary:disabled{
     margin-top: 5px;
+    color: #000000;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 button.search-btn {
@@ -103,7 +107,7 @@ button.search-btn:hover {
 }
 
 .table-body-wrapper {
-    max-height: 100%; /* 테이블 최대 높이를 늘렸습니다. */
+    height: 100%; /* 테이블 최대 높이를 늘렸습니다. */
     overflow-y: auto;
 }
 
@@ -131,9 +135,8 @@ button.search-btn:hover {
     margin-bottom: 5px;
     border: none;
     border-radius: 5px;
-    padding: 5px 10px;
     color: white;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .category-btn:hover {
@@ -144,7 +147,31 @@ button.search-btn:hover {
     vertical-align: middle;
 }
 
-.btn-outline-secondary.disabled, .btn-outline-secondary:disabled {
-    color: #000000;
-    background-color: transparent;
+.btn.disabled, .btn:disabled, fieldset:disabled .btn {
+    pointer-events: none;
+    opacity: 1;
+}
+
+/* 불완전 상병 코드 열 */
+.col-code {
+    width: 10%; /* 너비를 10%로 설정 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+}
+
+/* 불완전 상병명 열 */
+.col-name {
+    width: 30%; /* 너비를 30%로 설정 */
+    text-align: left; /* 텍스트 왼쪽 정렬 */
+}
+
+/* 카테고리 열 */
+.col-category {
+    width: 20%; /* 너비를 20%로 설정 */
+    text-align: left; /* 텍스트 왼쪽 정렬 */
+}
+
+/* 세부 청구 항목 열 */
+.col-details {
+    width: 40%; /* 너비를 40%로 설정 */
+    text-align: left; /* 텍스트 왼쪽 정렬 */
 }
