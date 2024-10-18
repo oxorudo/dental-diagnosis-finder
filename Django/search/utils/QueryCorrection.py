@@ -47,7 +47,8 @@ class HangulSearch:
 
     def search_with_options(self, data, query): # 검색 옵션
 
-        if query.startswith('K'): # 검색어가 대문자 K로 시작하면 기본 검색
+        if query.startswith('k'): # 검색어가 대문자 K로 시작하면 기본 검색
+            print('k')
             return self.search_with_contains(data, query[1:])
 
         if self.is_chosung(query): # 초성 검색어면 초성 검색 모드, 소문자 영어 검색어면 한영 변환 검색
