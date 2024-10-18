@@ -172,20 +172,18 @@ def build_hierarchy():
     return full_hierarchy
 
 
-@csrf_exempt  # CSRF 검사를 비활성화할 수 있습니다. 또는 POST 요청 시 AJAX에 CSRF 토큰을 포함해야 합니다.
+@csrf_exempt  # You might want to add CSRF protection in production
 def detail_action(request):
     if request.method == "POST":
-        # 클라이언트에서 받은 JSON 데이터를 파싱
         data = json.loads(request.body)
         detail = data.get("detail")
+        
+        sheet_data = global_url  # Replace with your actual data source
 
-        sheet_data = global_url
-
+        # Search for matching detail
         matching_row = sheet_data[sheet_data["세부 청구 항목 (키워드)"] == detail]
         if not matching_row.empty:
-            link = matching_row.iloc[0][
-                "URL  (tripletclover.com)"
-            ]  # 첫 번째 일치 항목의 URL 반환
+            link = matching_row.iloc[0]["URL  (tripletclover.com)"]
             return JsonResponse({"link": link})
         else:
             return JsonResponse({"error": "No matching link found"}, status=404)

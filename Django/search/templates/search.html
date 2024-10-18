@@ -96,9 +96,9 @@
                           </td>
                           <td class="col-details">
                             {% for detail in row.split_details %}
-                              <button class="btn btn-sm btn-outline-secondary" type="button" disabled>{{ detail }}</button>
+                              <button class="btn btn-sm btn-outline-secondary detail-btn" type="button" data-detail="{{ detail }}">{{ detail }}</button>
                             {% endfor %}
-                          </td>
+                          </td>                          
                         </tr>
                       {% endfor %}
                     </tbody>
@@ -112,6 +112,60 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'scripts.js' %}"></script>
+
+
+    <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const detailButtons = document.querySelectorAll('.detail-btn');
+        
+        detailButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const detail = button.getAttribute('data-detail');
+      
+            // Send POST request to the server
+            fetch("/detail-action/", {  
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+              },
+              body: JSON.stringify({ detail: detail })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.link) {
+                // 팝업 창으로 링크 열기
+                window.open(data.link, '_blank');
+              } else {
+                alert('링크를 찾을 수 없습니다.');
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+            });
+          });
+        });
+      });
+      
+      // Utility function to get CSRF token
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      
+      
+    </script>
+    
   </body>
 
 </html>

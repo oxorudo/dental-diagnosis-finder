@@ -17,8 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from search import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('detail-action/', views.detail_action, name='detail_action'),
     path("", include("search.urls")),  # search 앱의 URL을 메인으로 연결
 ]
