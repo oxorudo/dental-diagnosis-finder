@@ -6,9 +6,8 @@ from .models import DentalClaim
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
-from search.apps import global_searcher, global_url
+from search.apps import global_searcher, global_url, global_sheet_data
 from django.views.decorators.csrf import csrf_exempt
-from Django.search.utils.GoogleSheet import get_sheet_data
 import re
 
 
@@ -183,7 +182,7 @@ def detail_action(request):
         # Search for matching detail
         matching_row = sheet_data[sheet_data["세부 청구 항목 (키워드)"] == detail]
         if not matching_row.empty:
-            link = matching_row.iloc[0]["URL  (tripletclover.com)"]
+            link = matching_row.iloc[0]["URL(tripletclover.com)"]
             return JsonResponse({"link": link})
         else:
             return JsonResponse({"error": "No matching link found"}, status=404)
