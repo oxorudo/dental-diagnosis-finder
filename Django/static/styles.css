@@ -14,18 +14,28 @@ body {
 .sidebar {
     background-color: #f3f4f7;
     height: 100vh;
-    /* 전체 높이를 뷰포트 높이로 설정 */
     border-right: 1px solid #ddd;
     overflow-y: scroll;
-    /* 세로 스크롤 활성화 */
+}
+
+/* 사이드바 타이틀 및 항목 스타일 수정 */
+.category-title {
+    font-size: 1.5rem; /* 글씨 크기 조정 */
+    font-weight: bold; /* 글씨 두께 */
+    color: #374b61; /* 원하는 색상 (파란색) */
+    margin-top: 30px; /* 위쪽 여백 추가 */
+    margin-bottom: 15px; /* 아래쪽 여백 추가 */
+    display: block; /* 블록 요소로 변경하여 다른 항목과 분리 */
 }
 
 .sidebar .nav-link {
     font-weight: 500;
-    color: #007bff;
-    padding: 10px;
+    color: #007bff; /* 파란색으로만 설정 */
+    padding: 12px 15px; /* 항목 간격 조정 */
     border-radius: 8px;
+    text-decoration: none; /* 밑줄 제거 */
     transition: background-color 0.3s ease;
+    display: block; /* 클릭 영역 확대 */
 }
 
 .sidebar .nav-link.active,
@@ -69,7 +79,6 @@ button.search-btn {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
     white-space: nowrap;
-    /* 텍스트 줄바꿈 방지 */
 }
 
 button.search-btn:hover {
@@ -98,15 +107,6 @@ button.search-btn:hover {
     overflow-y: auto;
 }
 
-.table-body-wrapper::-webkit-scrollbar {
-    width: 8px;
-}
-
-.table-body-wrapper::-webkit-scrollbar-thumb {
-    background-color: #cccccc;
-    border-radius: 4px;
-}
-
 /* Detail Section */
 .detail-area .card {
     border-radius: 10px;
@@ -127,14 +127,11 @@ button.search-btn:hover {
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     overflow: hidden;
-    /* 테두리 내부에서 스크롤되는 효과를 위해 overflow 설정 */
 }
 
 .table-body-wrapper {
     max-height: 300px;
-    /* 테이블 본문에 대한 최대 높이 지정 */
     overflow-y: auto;
-    /* 세로 스크롤 허용 */
 }
 
 .table-body-wrapper::-webkit-scrollbar {
@@ -153,5 +150,4 @@ button.search-btn:hover {
     background-color: #f8f9fa;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     z-index: 2;
-    /* 헤더가 본문 위에 유지되도록 z-index 설정 */
 }
