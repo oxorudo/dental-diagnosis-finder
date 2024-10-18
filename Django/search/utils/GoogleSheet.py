@@ -1,10 +1,15 @@
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
-import sys
-import os
+from pathlib import Path
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+def find_key_path()->str:
+    root_dir = Path(__file__).resolve().parent.parent.parent  # 현재 파일의 루트 경로를 기준으로 찾음
+    # 루트 디렉토리에서 'key.json' 파일 찾기
+    key_file = root_dir / 'key.json'
+    if not key_file.exists():
+        raise FileNotFoundError("루트 폴더에 'key.json' 파일이 없습니다.")
+    return str(key_file)
 
 def get_sheet_data(
     api_key_path: str, 
@@ -28,10 +33,8 @@ def get_sheet_data(
     
     # Google Sheets API 인증 및 접근
     scope = ["https://spreadsheets.google.com/feeds", ]
-
     credits = ServiceAccountCredentials.from_json_keyfile_name(api_key_path, scope)
     gc = gspread.authorize(credits)
-
     # 스프레드시트 URL 설정
     spreadsheet_url = sheet_url
 
@@ -49,13 +52,11 @@ def get_sheet_data(
     return df
 
 
-def get_url()->pd.DataFrame:
+def get_url(api_key_path: str)->pd.DataFrame:
     sheet_data = get_sheet_data(
-            api_key_path='../../NLP/key.json',  # 자신의 API 키 경로
+            api_key_path=api_key_path,  # 자신의 API 키 경로
             sheet_url='https://docs.google.com/spreadsheets/d/1PzFuHuF2DvMPdSI-TK4Kq5LjPwyGzIxH3Q0Drnqft20/edit?usp=sharing',
             sheet_name='행위별 Category'
         )
     
     return sheet_data
-
-
