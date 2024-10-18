@@ -108,6 +108,8 @@ def get_sub_categories(middle_categories):
                         "name": name,
                         "type": "sub",
                     }
+                    # 하위분류가 있음을 표시
+                    major_data["children"][parent_code]["has_subcategories"] = True
 
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 3:
             parent_code = code[:-2]  # 대분류가 아닌 중분류 코드로 설정
@@ -119,6 +121,8 @@ def get_sub_categories(middle_categories):
                         "name": name,
                         "type": "sub",
                     }
+                    # 하위분류가 있음을 표시
+                    major_data["children"][parent_code]["has_subcategories"] = True
 
     return middle_categories
 

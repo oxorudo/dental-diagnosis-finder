@@ -28,6 +28,7 @@
                     {% for middle_code, middle_data in parent_data.children.items %}
                       <li>
                         <a href="#" class="middle-category" data-code="{{ middle_code }}">{{ middle_code }}
+                          {% if middle_data.has_subcategories %}~{% endif %}
                           -
                           {{ middle_data.name }}</a>
                         <ul style="display:none;">
@@ -151,10 +152,14 @@
           link.addEventListener('click', function (event) {
             event.preventDefault();
 
-            // 병명 전체 가져오기
-            const name = this
+            // 병명만 가져오기 (코드 부분을 제외하고 가져오기)
+            const nameParts = this
               .innerText
-              .trim();
+              .trim()
+              .split('-'); // '-'로 분리
+            const name = nameParts.length > 1
+              ? nameParts[1].trim()
+              : nameParts[0]; // 병명 부분 가져오기
             console.log(name); // 병명 확인
 
             const searchInput = document.getElementById('search-input');
