@@ -47,10 +47,6 @@ class HangulSearch:
 
     def search_with_options(self, data, query): # 검색 옵션
 
-        if query.startswith('k'): # 검색어가 대문자 K로 시작하면 기본 검색
-            print('k')
-            return self.search_with_contains(data, query[1:])
-
         if self.is_chosung(query): # 초성 검색어면 초성 검색 모드, 소문자 영어 검색어면 한영 변환 검색
             return self.search_with_chosung_inclusion(data, query)
 
@@ -60,8 +56,11 @@ class HangulSearch:
         return self.search_with_partial_and_correction(data, query)
 
     def search_df_with_options(self, query): # 보정 전에 순수 검색어로 검색 후 결과 없으면 보정 검색하는 옵션
+        query = query.upper()
         results = self.search_with_contains(self.df.applymap(str).values.flatten(), query)
         if not results:
+            query = query.lower()
+            print(query)
             for column in self.df.columns:
                 col_results = self.search_with_options(self.df[column].apply(str).tolist(), query)
                 if col_results:
