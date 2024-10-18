@@ -70,7 +70,7 @@ def get_middle_categories(hierarchy):
         ):
             # 물결표시가 있는 경우 제거
             cleaned_code = code.rstrip("~")
-            parent_code = code.rsplit(".", 1)[0] + "."  # 대분류 코드
+            parent_code = code.rsplit(".", 1)[0] + ".~"  # 대분류 코드
             # 대분류가 존재하지 않으면 추가
             if parent_code not in middle_categories:
                 middle_categories[parent_code] = {
