@@ -209,17 +209,20 @@
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
+                    'X-CSRFToken': getCookie('csrftoken') // CSRF 토큰을 헤더에 추가
                   },
                   body: JSON.stringify({detail: detail, code: code})
                 })
                   .then(response => response.json())
                   .then(data => {
-                    if (data.success) {
-                      alert('Detail action successful!');
+                    if (data.link) {
+                      window.open(data.link, '_blank'); // 링크로 리다이렉트
                     } else {
-                      alert('Error processing detail action.');
+                      alert('링크를 찾을 수 없습니다.');
                     }
+                  })
+                  .catch(error => {
+                    console.error('Error:', error);
                   });
               });
             });
