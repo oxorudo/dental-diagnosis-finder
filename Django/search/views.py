@@ -6,7 +6,7 @@ from .models import DentalClaim
 from transformers import AutoTokenizer, AutoModel
 import torch
 import difflib
-from search.apps import global_searcher,global_url
+from search.apps import global_searcher, global_url
 from django.views.decorators.csrf import csrf_exempt
 from Django.search.utils.GoogleSheet import get_sheet_data
 import re
@@ -17,13 +17,13 @@ tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spac
 model = AutoModel.from_pretrained(model_name)
 
 
-
 # 텍스트를 임베딩으로 변환하는 함수
 def get_embeddings(texts):
     inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
     with torch.no_grad():
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()  # [CLS] 토큰 벡터만 사용
+
 
 # 오탈자 교정 함수
 def correct_typo(input_word, dictionary):
@@ -51,21 +51,22 @@ def search_view(request):
         results = search_results.values.tolist()
 
     context = {
-        "results": results,              # 검색 결과
-        "query": query,                  # 검색어
-        "full_hierarchy": full_hierarchy  # 사이드바에 필요한 전체 계층 구조
+        "results": results,  # 검색 결과
+        "query": query,  # 검색어
+        "full_hierarchy": full_hierarchy,  # 사이드바에 필요한 전체 계층 구조
     }
     print(results)
 
     return render(request, "search.html", context)
+
 
 def get_disease_hierarchy():
     claims = DentalClaim.objects.all()
     hierarchy = {}
 
     for claim in claims:
-        code = re.sub(r'\x08', '', claim.incomplete_disease_code.strip())
-        name = re.sub(r'\x08', '', claim.incomplete_disease_name.strip())
+        code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
+        name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
 
         if code.endswith(".~"):
             hierarchy[code] = {"name": name, "children": {}}
@@ -78,8 +79,8 @@ def get_middle_categories(hierarchy):
     middle_categories = {}
 
     for claim in claims:
-        code = re.sub(r'\x08', '', claim.incomplete_disease_code.strip())
-        name = re.sub(r'\x08', '', claim.incomplete_disease_name.strip())
+        code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
+        name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
 
         # 코드 길이 확인
         if len(code) < 2:
@@ -107,15 +108,18 @@ def get_sub_categories(middle_categories):
     claims = DentalClaim.objects.all()
 
     for claim in claims:
-        code = re.sub(r'\x08', '', claim.incomplete_disease_code.strip())
-        name = re.sub(r'\x08', '', claim.incomplete_disease_name.strip())
+        code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
+        name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
 
         # 하위분류 코드 확인 (숫자가 2자리 또는 3자리인 경우)
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) in {2, 3}:
             parent_code = ".".join(code.split(".")[:-1]) + "."  # 중분류 코드
             if parent_code in middle_categories:  # 중분류가 존재하는 경우
                 # 중분류에 하위분류 추가
-                middle_categories[parent_code]["children"][code] = {"name": name, 'type': 'sub'}
+                middle_categories[parent_code]["children"][code] = {
+                    "name": name,
+                    "type": "sub",
+                }
 
     return middle_categories
 
@@ -139,20 +143,32 @@ def build_hierarchy():
 
     return full_hierarchy
 
+
 @csrf_exempt  # CSRF 검사를 비활성화할 수 있습니다. 또는 POST 요청 시 AJAX에 CSRF 토큰을 포함해야 합니다.
 def detail_action(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         # 클라이언트에서 받은 JSON 데이터를 파싱
         data = json.loads(request.body)
-        detail = data.get('detail')
+        detail = data.get("detail")
 
         sheet_data = global_url
-        
-        matching_row = sheet_data[sheet_data['세부 청구 항목 (키워드)'] == detail]
-        if not matching_row.empty:
-            link = matching_row.iloc[0]['URL  (tripletclover.com)']  # 첫 번째 일치 항목의 URL 반환
-            return JsonResponse({'link': link})
-        else:
-            return JsonResponse({'error': 'No matching link found'}, status=404)
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+        matching_row = sheet_data[sheet_data["세부 청구 항목 (키워드)"] == detail]
+        if not matching_row.empty:
+            link = matching_row.iloc[0][
+                "URL  (tripletclover.com)"
+            ]  # 첫 번째 일치 항목의 URL 반환
+            return JsonResponse({"link": link})
+        else:
+            return JsonResponse({"error": "No matching link found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# views.py
+from django.shortcuts import render
+
+
+def add_view(request):
+    # 추가 로직 구현
+    return render(request, "add_template.html")
