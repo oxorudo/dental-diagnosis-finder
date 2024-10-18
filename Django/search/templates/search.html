@@ -21,9 +21,7 @@
             <ul class="nav flex-column">
               {% for parent_code, parent_data in full_hierarchy.items %}
                 <li>
-                  <a href="#" class="major-category" data-code="{{ parent_code }}">{{ parent_code }}
-                    -
-                    {{ parent_data.name }}</a>
+                  <a href="#" class="major-category btn btn-primary mb-2 w-100" data-code="{{ parent_code }}">{{ parent_code }}</a>
                   <ul style="display:none;">
                     {% for middle_code, middle_data in parent_data.children.items %}
                       <li>

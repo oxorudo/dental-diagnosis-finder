@@ -44,6 +44,48 @@ body {
     color: #0056b3;
 }
 
+/* 사이드바 대분류 버튼 스타일 수정 */
+.sidebar .major-category {
+    font-weight: bold;
+    color: #d6e9fd;
+    background-color: #2a6db4;
+    padding: 8px 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    width: 75px;
+    /* 고정된 너비 */
+    min-width: 50px;
+    /* 최소 너비 */
+    max-width: 100px;
+    /* 최대 너비 */
+    flex: none;
+    /* flexbox 영향 방지 */
+}
+
+.sidebar .major-category:hover {
+    background-color: #2d4a6a;
+    color: #d6e9fd;
+}
+
+/* 추가 버튼*/
+#add-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+#add-button:hover {
+    background-color: #5a6268;
+}
+
 /* Search Bar */
 .search-area {
     background-color: #e9f0fa;
@@ -67,7 +109,8 @@ input#search-input:focus {
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
 
-button.btn-outline-secondary, .btn-outline-secondary:disabled{
+button.btn-outline-secondary,
+.btn-outline-secondary:disabled {
     margin-bottom: 2.5px;
     margin-top: 2.5px;
     color: #000000;
@@ -103,9 +146,9 @@ button.search-btn:hover {
 }
 
 .table-body-wrapper {
-    height: 100%; 
+    height: 100%;
     overflow-y: auto;
-    max-height: 77vh; 
+    max-height: 77vh;
 }
 
 .table-body-wrapper::-webkit-scrollbar {
@@ -126,8 +169,6 @@ button.search-btn:hover {
     z-index: 1;
 }
 
-    
-
 /* 카테고리 버튼 스타일 */
 .category-btn {
     margin-right: 5px;
@@ -147,13 +188,17 @@ button.search-btn:hover {
     vertical-align: middle;
 }
 
-.btn.disabled, .btn:disabled, fieldset:disabled .btn {
+.btn.disabled,
+.btn:disabled,
+fieldset:disabled .btn {
     pointer-events: none;
     opacity: 1;
 }
-.table{
+
+.table {
     font-weight: bold;
 }
+
 /* 불완전 상병 코드 열 */
 .col-code {
     width: 15%;
@@ -163,20 +208,19 @@ button.search-btn:hover {
 /* 불완전 상병명 열 */
 .col-name {
     width: 15%;
-    text-align: left; 
+    text-align: left;
     word-break: break-all;
     overflow-wrap: break-word;
 }
 
 /* 카테고리 열 */
 .col-category {
-    width: 20%; 
-    text-align: left; 
+    width: 20%;
+    text-align: left;
 }
 
 /* 세부 청구 항목 열 */
 .col-details {
-    width: 50%; 
-    text-align: left; 
+    width: 50%;
+    text-align: left;
 }
-
