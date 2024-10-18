@@ -11,31 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 from Django.search.utils.GoogleSheet import get_sheet_data
 import re
 
-# KoELECTRA 모델 및 토크나이저 로드
-model_name = "jhgan/ko-sroberta-multitask"
-tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
-model = AutoModel.from_pretrained(model_name)
-
-
-# 텍스트를 임베딩으로 변환하는 함수
-def get_embeddings(texts):
-    inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
-    with torch.no_grad():
-        outputs = model(**inputs)
-    return outputs.last_hidden_state[:, 0, :].numpy()  # [CLS] 토큰 벡터만 사용
-
-
-# 오탈자 교정 함수
-def correct_typo(input_word, dictionary):
-    closest_matches = difflib.get_close_matches(input_word, dictionary, n=3, cutoff=0.5)
-    if closest_matches:
-        corrected_word = closest_matches[0]  # 가장 유사한 단어 선택
-        suggestions = closest_matches  # 제안 목록
-    else:
-        corrected_word = input_word
-        suggestions = []
-    return corrected_word, suggestions
-
 
 def search_view(request):
     query = request.GET.get("q", "").strip()
