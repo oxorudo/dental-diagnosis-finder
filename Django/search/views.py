@@ -21,12 +21,8 @@ def search_view(request):
     full_hierarchy = build_hierarchy()  # 전체 계층 구조 가져오기
 
     if query:
-        # 검색어가 있을 때만 검색을 수행
-        if "-" in query:
-            query = re.sub(r"^[A-Z0-9]+\.?\d*~? - ", "", query)
-
-    search_results = global_searcher.search_df_with_options(query)
-    results = search_results.values.tolist()
+        search_results = global_searcher.search_df_with_options(query)
+        results = search_results.values.tolist()
 
     context = {
         "results": results,  # 검색 결과
