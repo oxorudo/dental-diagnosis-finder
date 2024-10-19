@@ -2,9 +2,8 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from .utils.category_colors import CATEGORY_COLORS
-from .apps import global_searcher, global_url, global_hierarchy_structure
+from .apps import global_searcher, global_url
 from django.views.decorators.csrf import csrf_exempt
-
 
 def search_view(request):
     query = request.GET.get("q", "").strip()  # 검색어 가져오기
@@ -35,13 +34,8 @@ def search_view(request):
     context = {
         "results": results,  # 검색 결과
         "query": query,  # 검색어
-        # "full_hierarchy": global_hierarchy_structure,  # 사이드바에 필요한 전체 계층 구조
     }
     return render(request, "search.html", context)
-
-
-
-
 
 @csrf_exempt  # You might want to add CSRF protection in production
 def detail_action(request):
@@ -49,10 +43,10 @@ def detail_action(request):
         data = json.loads(request.body)
         detail = data.get("detail")
         
-        sheet_data = global_url  # Replace with your actual data source
+        url_sheet_data = global_url  # Replace with your actual data source
 
         # Search for matching detail
-        matching_row = sheet_data[sheet_data["세부 청구 항목 (키워드)"] == detail]
+        matching_row = url_sheet_data[url_sheet_data["세부 청구 항목 (키워드)"] == detail]
         if not matching_row.empty:
             link = matching_row.iloc[0]["URL(tripletclover.com)"]
             return JsonResponse({"link": link})

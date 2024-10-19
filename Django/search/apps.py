@@ -11,24 +11,22 @@ class SearchConfig(AppConfig):
     name = "search"
     
     def ready(self):
-        global global_sheet_data
         global global_searcher
         global global_url
         global global_hierarchy_structure  # 전역 변수 추가
-        global global_api_key_path
         
         # 서버 시작 시 데이터 불러오기
-        global_api_key_path = find_key_path()
+        api_key_path = find_key_path()
         
         # 구글 스프레드시트 불러오기
-        global_sheet_data = get_sheet_data(global_api_key_path)
+        sheet_data = get_sheet_data(api_key_path)
         
         # 세부 청부 항목 URL 불러오기(구글 스프레드 시트)
-        global_url = get_url(global_api_key_path)
+        global_url = get_url(api_key_path)
         
         # 검색 알고리즘
-        global_searcher = HangulSearch(global_sheet_data)
+        global_searcher = HangulSearch(sheet_data)
 
         # 전체 계층 구조를 서버 시작 시 한 번만 로드
-        global_hierarchy_structure = build_hierarchy(global_sheet_data)  # 전체 계층 구조를 전역 변수에 저장
+        global_hierarchy_structure = build_hierarchy(sheet_data)  # 전체 계층 구조를 전역 변수에 저장
     
