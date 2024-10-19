@@ -37,7 +37,6 @@ def search_view(request):
         "query": query,  # 검색어
         # "full_hierarchy": global_hierarchy_structure,  # 사이드바에 필요한 전체 계층 구조
     }
-
     return render(request, "search.html", context)
 
 

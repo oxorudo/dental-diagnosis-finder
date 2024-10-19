@@ -1,11 +1,7 @@
 import re
-from .GoogleSheet import get_sheet_data, find_key_path
-
-def get_disease_hierarchy():
+import pandas as pd
+def get_disease_hierarchy(sheet_data: pd.DataFrame):
     # Google Sheets에서 데이터를 불러옵니다.
-    api_key_path = find_key_path()
-    sheet_data = get_sheet_data(api_key_path)
-
     hierarchy = {}
 
     for index, row in sheet_data.iterrows():
@@ -14,12 +10,9 @@ def get_disease_hierarchy():
 
         if code.endswith(".~"):
             hierarchy[code] = {"name": name, "children": {}}
-
     return hierarchy
 
-def get_middle_categories(hierarchy):
-    api_key_path = find_key_path()
-    sheet_data = get_sheet_data(api_key_path)
+def get_middle_categories(hierarchy, sheet_data: pd.DataFrame):
     middle_categories = {}
 
     for index, row in sheet_data.iterrows():
@@ -48,9 +41,7 @@ def get_middle_categories(hierarchy):
 
     return middle_categories
 
-def get_sub_categories(middle_categories):
-    api_key_path = find_key_path()
-    sheet_data = get_sheet_data(api_key_path)
+def get_sub_categories(middle_categories, sheet_data: pd.DataFrame):
 
     for index, row in sheet_data.iterrows():
         code = re.sub(r"\x08", "", row['불완전 상병 코드'].strip())
@@ -79,10 +70,10 @@ def get_sub_categories(middle_categories):
 
     return middle_categories
 
-def build_hierarchy():
-    hierarchy = get_disease_hierarchy()
-    middle_categories = get_middle_categories(hierarchy)
-    sub_categories = get_sub_categories(middle_categories)
+def build_hierarchy(sheet_data: pd.DataFrame):
+    hierarchy = get_disease_hierarchy(sheet_data)
+    middle_categories = get_middle_categories(hierarchy,sheet_data)
+    sub_categories = get_sub_categories(middle_categories,sheet_data)
 
     # 최종 계층 구조 생성
     full_hierarchy = {}
