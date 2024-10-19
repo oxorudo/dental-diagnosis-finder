@@ -1,4 +1,4 @@
-from .views import build_hierarchy  # build_hierarchy를 views.py에서 가져오기
+from .utils.hierarchy import build_hierarchy  # hierarchy.py에서 가져오기
 
 def full_hierarchy_processor(request):
     full_hierarchy = build_hierarchy()  # 계층 구조 생성
