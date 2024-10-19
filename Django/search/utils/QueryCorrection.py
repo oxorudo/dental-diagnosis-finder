@@ -62,9 +62,9 @@ class HangulSearch:
         query = query.replace('  ', '')
         query = query.upper()
 
-        self.df = self.df.applymap(lambda x: self.clean_text(str(x)))
+        self.df = self.df.apply(lambda col: col.map(lambda x: self.clean_text(str(x))))
         
-        results = self.search_with_contains(self.df.applymap(str).values.flatten(), query)
+        results = self.search_with_contains(self.df.apply(lambda col: col.map(str)).values.flatten(), query)
         if not results:
             query = query.lower()
             print('보정 후 검색') 
