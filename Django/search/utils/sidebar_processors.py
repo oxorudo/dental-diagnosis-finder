@@ -1,4 +1,4 @@
-from .apps import global_hierarchy_structure
+from ..apps import global_hierarchy_structure
 
 def full_hierarchy_processor(request):
     full_hierarchy = global_hierarchy_structure

@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from .utils.GoogleSheet import get_sheet_data, get_url, find_key_path
 from .utils.QueryCorrection import HangulSearch       
-from .utils.hierarchy import build_hierarchy
+from .utils.category_hierarchy import build_hierarchy
 
 class SearchConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
