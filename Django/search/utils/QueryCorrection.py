@@ -44,6 +44,9 @@ class HangulSearch:
     def search_with_chosung_inclusion(self, data, query): # 초성 검색
         chosung_query = self.get_chosung(query)
         return [item for item in data if chosung_query in self.get_chosung(item)]
+    
+    def clean_text(self, query):
+        return re.sub(r'\s+', ' ', query.strip())  # 중복 공백을 단일 공백으로 변환
 
     def search_with_options(self, data, query): # 검색 옵션
 
@@ -53,13 +56,18 @@ class HangulSearch:
         if all(char.isalpha() and char.islower() for char in query):
             query = unicode.join_jamos(self.convert_eng_to_kor(query)) # 한국어 풀어쓰기 해제
 
-        return self.search_with_partial_and_correction(data, query)
+        return self.search_with_partial_and_correction(data, query) 
 
     def search_df_with_options(self, query): # 보정 전에 순수 검색어로 검색 후 결과 없으면 보정 검색하는 옵션
+        query = query.replace('  ', '')
         query = query.upper()
+
+        self.df = self.df.applymap(lambda x: self.clean_text(str(x)))
+        
         results = self.search_with_contains(self.df.applymap(str).values.flatten(), query)
         if not results:
             query = query.lower()
+            print('보정 후 검색') 
             print(query)
             for column in self.df.columns:
                 col_results = self.search_with_options(self.df[column].apply(str).tolist(), query)
