@@ -2,10 +2,10 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from Django.search.utils.category_colors import CATEGORY_COLORS
-from .models import DentalClaim
 from search.apps import global_searcher, global_url, global_sheet_data
 from django.views.decorators.csrf import csrf_exempt
 import re
+from .utils.GoogleSheet import get_sheet_data, find_key_path
 
 def search_view(request):
     query = request.GET.get("q", "").strip()  # 검색어 가져오기
@@ -46,26 +46,29 @@ def search_view(request):
 
 
 def get_disease_hierarchy():
-    claims = DentalClaim.objects.all()
+    # Google Sheets에서 데이터를 불러옵니다.
+    api_key_path = find_key_path()
+    sheet_data = get_sheet_data(api_key_path)
+
     hierarchy = {}
 
-    for claim in claims:
-        code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
-        name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
+    for index, row in sheet_data.iterrows():
+        code = re.sub(r"\x08", "", row['불완전 상병 코드'].strip())
+        name = re.sub(r"\x08", "", row['불완전 상병명'].strip())
 
         if code.endswith(".~"):
             hierarchy[code] = {"name": name, "children": {}}
 
     return hierarchy
 
-
 def get_middle_categories(hierarchy):
-    claims = DentalClaim.objects.all()
+    api_key_path = find_key_path()
+    sheet_data = get_sheet_data(api_key_path)
     middle_categories = {}
 
-    for claim in claims:
-        code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
-        name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
+    for index, row in sheet_data.iterrows():
+        code = re.sub(r"\x08", "", row['불완전 상병 코드'].strip())
+        name = re.sub(r"\x08", "", row['불완전 상병명'].strip())
 
         # 코드 길이 확인
         if len(code) < 2:
@@ -75,18 +78,13 @@ def get_middle_categories(hierarchy):
         if (code[-2].isdigit() and code[-1] == "~") or (
             code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 1
         ):
-            # 물결표시가 있는 경우 제거
             cleaned_code = code.rstrip("~")
             parent_code = code.rsplit(".", 1)[0] + ".~"  # 대분류 코드
-            # 대분류가 존재하지 않으면 추가
             if parent_code not in middle_categories:
                 middle_categories[parent_code] = {
-                    "name": hierarchy.get(parent_code, {}).get(
-                        "name", ""
-                    ),  # 대분류 이름 가져오기
+                    "name": hierarchy.get(parent_code, {}).get("name", ""),
                     "children": {},
                 }
-            # 중분류 추가
             middle_categories[parent_code]["children"][cleaned_code] = {
                 "name": name,
                 "children": {},  # 하위분류를 위한 children 초기화
@@ -94,45 +92,36 @@ def get_middle_categories(hierarchy):
 
     return middle_categories
 
-
 def get_sub_categories(middle_categories):
-    claims = DentalClaim.objects.all()
+    api_key_path = find_key_path()
+    sheet_data = get_sheet_data(api_key_path)
 
-    for claim in claims:
-        code = re.sub(r"\x08", "", claim.incomplete_disease_code.strip())
-        name = re.sub(r"\x08", "", claim.incomplete_disease_name.strip())
+    for index, row in sheet_data.iterrows():
+        code = re.sub(r"\x08", "", row['불완전 상병 코드'].strip())
+        name = re.sub(r"\x08", "", row['불완전 상병명'].strip())
 
         # 하위분류 코드 확인 (숫자가 2자리인 경우)
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 2:
-            # 하위분류는 중분류 코드에 속해야 함
-            # 부모 코드는 마침표 이후 첫 번째 숫자를 기준으로 중분류 코드로 판단
             parent_code = code[:-1]  # 대분류가 아닌 중분류 코드로 설정
-            # 중분류 코드가 middle_categories에 있는지 확인
             for major_code, major_data in middle_categories.items():
                 if parent_code in major_data["children"]:  # 중분류가 존재하는 경우
-                    # 중분류에 하위분류 추가
                     major_data["children"][parent_code]["children"][code] = {
                         "name": name,
                         "type": "sub",
                     }
-                    # 하위분류가 있음을 표시
                     major_data["children"][parent_code]["has_subcategories"] = True
 
         if code.split(".")[-1].isdigit() and len(code.split(".")[-1]) == 3:
             parent_code = code[:-2]  # 대분류가 아닌 중분류 코드로 설정
-            # 중분류 코드가 middle_categories에 있는지 확인
             for major_code, major_data in middle_categories.items():
                 if parent_code in major_data["children"]:  # 중분류가 존재하는 경우
-                    # 중분류에 하위분류 추가
                     major_data["children"][parent_code]["children"][code] = {
                         "name": name,
                         "type": "sub",
                     }
-                    # 하위분류가 있음을 표시
                     major_data["children"][parent_code]["has_subcategories"] = True
 
     return middle_categories
-
 
 def build_hierarchy():
     hierarchy = get_disease_hierarchy()
