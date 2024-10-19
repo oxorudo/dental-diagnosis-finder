@@ -11,6 +11,10 @@ jobs:
       run: |
         COMMIT_MESSAGE=$(git log -1 --pretty=%B)
         AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+        FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $(git log -1 --pretty=%H))
+        BRANCH_NAME=${{ github.ref }}
+        
+        # Slack 메시지 포맷
         curl -X POST -H 'Content-type: application/json' --data "{
-          \"text\":\":rocket: *New Push by [$AUTHOR_NAME]*\n\n\`\`\`$COMMIT_MESSAGE\`\`\`\"
+          \"text\":\":rocket: *New Push by [$AUTHOR_NAME]*\n\n*Branch:* $BRANCH_NAME\n\n*Files Changed:*\n\`\`\`$FILES_CHANGED\`\`\`\n\n*Commit Message:*\n\`\`\`$COMMIT_MESSAGE\`\`\`\"
         }" ${{ secrets.SLACK_WEBHOOK_URL }}
