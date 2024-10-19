@@ -20,6 +20,7 @@ class HangulSearch:
     
     def get_chosung(self, text): # 데이터프레임 값들 초성 변환
         result = []
+        text = text.replace(" ", "")  # 공백 제거
         for char in str(text):
             if 44032 <= ord(char) <= 55203:
                 index = (ord(char) - 44032) // 588
@@ -32,6 +33,7 @@ class HangulSearch:
         return ''.join(self.eng_to_kor.get(char, char) for char in eng_text)
 
     def is_chosung(self, text): #  검색어가 초성인지 판별
+        text = text.replace(" ", "")  # 공백 제거
         return all(char in self.CHOSUNG_LIST for char in str(text))
 
     def search_with_contains(self, data, query): # 보정 전 검색어 포함 여부 검색
@@ -59,7 +61,6 @@ class HangulSearch:
         return self.search_with_partial_and_correction(data, query) 
 
     def search_df_with_options(self, query): # 보정 전에 순수 검색어로 검색 후 결과 없으면 보정 검색하는 옵션
-        query = query.replace('  ', '')
         query = query.upper()
 
         self.df = self.df.apply(lambda col: col.map(lambda x: self.clean_text(str(x))))
