@@ -11,6 +11,12 @@ body {
     flex-direction: column;
 }
 
+/* 리스트 점 제거 */
+.sidebar ul {
+    list-style-type: none;
+    
+}
+
 .sidebar {
     background-color: #f3f4f7;
     height: 100vh;
@@ -60,10 +66,12 @@ body {
     /* 고정된 너비 */
     min-width: 50px;
     /* 최소 너비 */
-    max-width: 100px;
+    max-width: 100px;   
     /* 최대 너비 */
     flex: none;
     /* flexbox 영향 방지 */
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 .sidebar .major-category:hover {
@@ -86,37 +94,14 @@ body {
     background-color: #5a6268;
 }
 
-/* Search Bar */
-.search-area {
-    background-color: #e9f0fa;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    height: 9.5vh;
-}
-
-input#search-input {
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    border: 1px solid #ccd1d9;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    flex-grow: 1;
-}
-
+/* ----------------------------------- Search Bar -------------------------------*/
 input#search-input:focus {
     border-color: #007bff;
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
 
-button.btn-outline-secondary,
-.btn-outline-secondary:disabled {
-    margin-bottom: 2.5px;
-    margin-top: 2.5px;
-    color: #000000;
-    background-color: transparent;
-    font-weight: bold;
-    font-size: 14px;
+button.search-btn:hover {
+    background-color: #0056b3;
 }
 
 button.search-btn {
@@ -130,8 +115,34 @@ button.search-btn {
     white-space: nowrap;
 }
 
-button.search-btn:hover {
-    background-color: #0056b3;
+.form-control {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 3px solid #007bff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+/* ------------------------------------------------------------------------------------------------ */
+
+button.btn-outline-secondary,
+.btn-outline-secondary:disabled {
+    margin-bottom: 2.5px;
+    margin-top: 2.5px;
+    color: #000000;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .table {
