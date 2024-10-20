@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-  const detailButtons = document.querySelectorAll('.detail-btn');
-  
-  detailButtons.forEach(button => {
-    button.addEventListener('click', () => {
+  const resultBody = document.getElementById('result-body');
+
+  // result-body에 클릭 이벤트 리스너 추가
+  resultBody.addEventListener('click', (event) => {
+    if (event.target.classList.contains('detail-btn')) {
+      const button = event.target;
       const detail = button.getAttribute('data-detail');
 
       // 사용자에게 상세 정보를 볼 것인지 묻는 confirm 대화 상자
@@ -34,7 +36,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // 사용자가 '아니오'를 클릭하면 아무것도 하지 않음
         alert('상세 정보를 보지 않았습니다.');
       }
-    });
+    }
   });
 });
 

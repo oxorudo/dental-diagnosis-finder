@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from .utils.category_colors import CATEGORY_COLORS
 from .apps import global_searcher, global_url
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt    
 
 def search_view(request):
     query = request.GET.get("q", "").strip()  # 검색어 가져오기
@@ -31,6 +31,10 @@ def search_view(request):
                 'split_details': split_details
             })
             
+    # AJAX 요청 확인 (is_ajax() 대신 헤더 확인)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == "GET":
+        return JsonResponse({"results": results, "query": query})  # JSON 응답 반환
+
     context = {
         "results": results,  # 검색 결과
         "query": query,  # 검색어
@@ -58,3 +62,4 @@ def detail_action(request):
 def add_view(request):
     # 추가 로직 구현
     return render(request, "add_template.html")
+
