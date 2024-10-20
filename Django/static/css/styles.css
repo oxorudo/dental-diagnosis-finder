@@ -1,3 +1,9 @@
+:root {
+    --primary-color: #0056b3; /* 대표 파란색 */
+    --primary-color-dark: #0056b3; /* 어두운 파란색 */
+    --primary-color-light: #d6eaff; /* 연한 파란색 */
+}
+
 /* General Styles */
 body {
     font-family: 'Roboto', sans-serif;
@@ -10,47 +16,6 @@ body {
     display: flex;
     flex-direction: column;
 }
-
-/* ----------------------------------- Search Bar -------------------------------*/
-input#search-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-}
-
-button.search-btn:hover {
-    background-color: #0056b3;
-}
-
-button.search-btn {
-    background-color: #007bff;
-    color: white;
-    border-radius: 8px;
-    padding: 12px 20px;
-    border: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease;
-    white-space: nowrap;
-}
-
-.form-control {
-    display: block;
-    width: 100%;
-    padding: .375rem .75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 3px solid #007bff;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    border-radius: .25rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-}
-
-/* ------------------------------------------------------------------------------------------------ */
 
 button.btn-outline-secondary,
 .btn-outline-secondary:disabled {
@@ -159,7 +124,7 @@ fieldset:disabled .btn {
     position: absolute; /* 사이드바 내부에서 절대 위치 */
     width: 40px;
     height: 40px;
-    background-color: #007bff; /* 버튼 배경색 */
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -227,10 +192,11 @@ fieldset:disabled .btn {
 .major-category, .middle-category, .sub-category {
     display: block; /* Make links block elements */
     padding: 10px; /* Padding for clickable area */
-    color: #007bff; /* Bootstrap primary color */
+    color: #000000; /* Bootstrap primary color */
     text-decoration: none; /* Remove underline */
     border-radius: 5px; /* Rounded corners */
     transition: background-color 0.3s; /* Smooth transition */
+    background-color: #f8f9fa;
 }
 
 .major-category:hover, .middle-category:hover, .sub-category:hover {

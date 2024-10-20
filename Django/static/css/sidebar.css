@@ -43,7 +43,7 @@
 .sidebar .major-category {
     font-weight: 500;
     color: #d6e9fd;
-    background-color: #2a6db4;
+    background-color: var(--primary-color);
     padding: 10px 12px;
     font-size: 16px;
     border-radius: 8px;

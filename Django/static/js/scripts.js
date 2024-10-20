@@ -34,24 +34,24 @@ document.addEventListener('DOMContentLoaded', function () {
   links.forEach(link => {
     link.addEventListener('click', function (event) {
       event.preventDefault();
-
+  
       // 병명만 가져오기 (코드 부분을 제외하고 가져오기)
-      const nameParts = this
-        .innerText
-        .trim()
-        .split('-'); // '-'로 분리
-      const name = nameParts.length > 1
-        ? nameParts[1].trim()
-        : nameParts[0]; // 병명 부분 가져오기
+      const nameParts = this.innerText.trim().split('-'); // '-'로 분리
+      const name = nameParts.length > 1 ? nameParts[1].trim() : nameParts[0]; // 병명 부분 가져오기
       console.log(name); // 병명 확인
-
+  
       const searchInput = document.getElementById('search-input');
       searchInput.value = name; // 검색창에 병명 입력
-      this
-        .closest('form')
-        .submit(); // 폼 제출 (자동 검색)
+  
+      const form = document.getElementById('search-form'); // 폼을 명확히 선택 (폼에 ID가 있다고 가정)
+      if (form) {
+        form.submit(); // 폼 제출 (자동 검색)
+      } else {
+        console.error("Form not found!");
+      }
     });
   });
+  
 
   const rows = document.querySelectorAll('#result-body tr');
 
