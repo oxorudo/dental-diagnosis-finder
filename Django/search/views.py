@@ -9,6 +9,8 @@ def search_view(request):
     query = request.GET.get("q", "").strip()  # 검색어 가져오기
     results = []
 
+    print(f"Search Query: '{query}'")  # 디버깅: 검색어 출력
+
     if query:
         search_results = global_searcher.search_df_with_options(query)
         
@@ -17,29 +19,31 @@ def search_view(request):
             split_categories = row[2].split(' | ') if row[2] else []
             split_details = row[3].split(' | ') if row[3] else []
 
-            # 각 카테고리에 색상 추가
-            categories_with_colors = [
-                {'name': category, 'color': CATEGORY_COLORS.get(category, '#6c757d')}
-                for category in split_categories
-            ]
-
-            # 결과에 카테고리와 세부 청구 항목 추가
-            results.append({
-                'code': row[0],
-                'name': row[1],
-                'categories': categories_with_colors,  # 카테고리와 색상 정보 함께 저장
-                'split_details': split_details
-            })
             
-    # AJAX 요청 확인 (is_ajax() 대신 헤더 확인)
+            # '대분류/중분류'는 제외하고, '하위분류'만 결과에 포함 (코드가 '~'로 끝나지 않으면)
+            if not row[0].endswith('~'):
+                categories_with_colors = [
+                    {'name': category, 'color': CATEGORY_COLORS.get(category, '#6c757d')}
+                    for category in split_categories
+                ]
+
+                results.append({
+                    'code': row[0],  # 원래 코드 값을 유지
+                    'name': row[1],
+                    'categories': categories_with_colors,
+                    'split_details': split_details
+                })
+
+    # AJAX 요청 확인
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == "GET":
-        return JsonResponse({"results": results, "query": query})  # JSON 응답 반환
+        return JsonResponse({"results": results, "query": query})
 
     context = {
-        "results": results,  # 검색 결과
-        "query": query,  # 검색어
+        "results": results,
+        "query": query,
     }
     return render(request, "index.html", context)
+
 
 @csrf_exempt  # You might want to add CSRF protection in production
 def detail_action(request):

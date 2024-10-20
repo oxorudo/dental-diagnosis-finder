@@ -28,21 +28,24 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // 항목 클릭 시 입력창에 병명 전달
+  // 항목 클릭 시 입력창에 코드 전달
   const links = document.querySelectorAll('.major-category, .middle-category, .sub-category');
 
   links.forEach(link => {
     link.addEventListener('click', function (event) {
       event.preventDefault();
-  
-      // 병명만 가져오기 (코드 부분을 제외하고 가져오기)
+
+      // 코드만 가져오기 (병명 부분을 제외하고 가져오기)
       const nameParts = this.innerText.trim().split('-'); // '-'로 분리
-      const name = nameParts.length > 1 ? nameParts[1].trim() : nameParts[0]; // 병명 부분 가져오기
-      console.log(name); // 병명 확인
-  
+      const name = nameParts.length > 1 ? nameParts[0].trim() : nameParts[0]; // 코드 부분 가져오기
+
+      // 코드 뒤에 ~가 있으면 제거
+      const cleanedName = name.replace(/\s*~\s*$/, '');
+      console.log(cleanedName); // 코드 확인
+
       const searchInput = document.getElementById('search-input');
-      searchInput.value = name; // 검색창에 병명 입력
-  
+      searchInput.value = cleanedName; // 검색창에 코드 입력
+
       const form = document.getElementById('search-form'); // 폼을 명확히 선택 (폼에 ID가 있다고 가정)
       if (form) {
         form.submit(); // 폼 제출 (자동 검색)
@@ -51,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
-  
+
 
   const rows = document.querySelectorAll('#result-body tr');
 
@@ -74,13 +77,13 @@ document.addEventListener('DOMContentLoaded', function () {
       let buttonsHTML = '';
       detailsArray.forEach(detail => {
         if (detail === '없음') {
-            buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" disabled>${detail}</button> `;
+          buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" disabled>${detail}</button> `;
         } else {
-            buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button> `;
+          buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button> `;
         }
       });
 
-      
+
 
       // Update detail content
       if (detailContent) {
@@ -92,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ${buttonsHTML}
         `;
       } else {
-          console.error("Element with id 'detail-content' not found");
+        console.error("Element with id 'detail-content' not found");
       }
     });
   });
@@ -119,21 +122,21 @@ document.addEventListener('DOMContentLoaded', function () {
         'X-Requested-With': 'XMLHttpRequest' // AJAX 요청임을 서버에 알림
       }
     })
-    .then(response => response.json())
-    .then(data => {
-      // 검색 결과 처리
-      const resultBody = document.getElementById('result-body');
-      if (resultBody) { // resultBody가 null이 아닌지 확인
-        resultBody.innerHTML = ''; // 기존 결과 초기화
+      .then(response => response.json())
+      .then(data => {
+        // 검색 결과 처리
+        const resultBody = document.getElementById('result-body');
+        if (resultBody) { // resultBody가 null이 아닌지 확인
+          resultBody.innerHTML = ''; // 기존 결과 초기화
 
-        if (data.results.length > 0) {
-          data.results.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.setAttribute('data-code', row.code);
-            tr.setAttribute('data-name', row.name);
-            tr.setAttribute('data-category', row.categories.map(c => c.name).join(', '));
-            tr.setAttribute('data-details', row.split_details.join(' | '));
-            tr.innerHTML = `
+          if (data.results.length > 0) {
+            data.results.forEach(row => {
+              const tr = document.createElement('tr');
+              tr.setAttribute('data-code', row.code);
+              tr.setAttribute('data-name', row.name);
+              tr.setAttribute('data-category', row.categories.map(c => c.name).join(', '));
+              tr.setAttribute('data-details', row.split_details.join(' | '));
+              tr.innerHTML = `
               <td class="col-code">${row.code}</td>
               <td class="col-name">${row.name}</td>
               <td class="col-category">
@@ -143,16 +146,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 ${row.split_details.map(detail => `<button class="btn btn-sm btn-outline-secondary detail-btn" type="button" data-detail="${detail}">${detail}</button>`).join('')}
               </td>
             `;
-            resultBody.appendChild(tr);
-          });
+              resultBody.appendChild(tr);
+            });
+          } else {
+            resultBody.innerHTML = '<tr><td colspan="4" class="text-center">검색 결과가 없습니다.</td></tr>';
+          }
         } else {
-          resultBody.innerHTML = '<tr><td colspan="4" class="text-center">검색 결과가 없습니다.</td></tr>';
+          console.error("Element with id 'result-body' not found");
         }
-      } else {
-        console.error("Element with id 'result-body' not found");
-      }
-    })
-    .catch(error => console.error('Error fetching search results:', error));
+      })
+      .catch(error => console.error('Error fetching search results:', error));
   });
 });
 

@@ -17,9 +17,10 @@
                 <ul style="display:none;">
                     {% for middle_code, middle_data in parent_data.children.items %}
                     <li>
-                        <a href="#" class="middle-category" data-code="{{ middle_code }}">{{ middle_code }}
-                            {% if middle_data.has_subcategories %}~{% endif %}
-                            - {{ middle_data.name }}</a>
+                        <a href="#" class="middle-category" data-code="{{ middle_code }}">
+                            {{ middle_code }}{% if middle_data.has_subcategories %}~{% endif %} - {{ middle_data.name }}
+                        </a>
+                        
                         <ul style="display:none;">
                             {% for sub_code, sub_data in middle_data.children.items %}
                             <li>
