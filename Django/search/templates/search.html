@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <html lang="ko">
 
   <head>
@@ -21,7 +22,8 @@
             <ul class="nav flex-column">
               {% for parent_code, parent_data in full_hierarchy.items %}
                 <li>
-                  <a href="#" class="major-category btn btn-primary" data-code="{{ parent_code }}">{{ parent_code }} - {{ parent_data.name }}</a>
+                  {% load custom_filters %}
+                  <a href="#" class="major-category btn btn-primary" data-code="{{ parent_code }}">{{ parent_code|remove_last_char }} - {{ parent_data.name }}</a>
                   <ul style="display:none;">
                     {% for middle_code, middle_data in parent_data.children.items %}
                       <li>

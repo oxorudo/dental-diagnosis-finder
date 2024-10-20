@@ -14,7 +14,7 @@ body {
 /* 리스트 점 제거 */
 .sidebar ul {
     list-style-type: none;
-    
+
 }
 
 .sidebar {
@@ -34,14 +34,18 @@ body {
     display: block;
 }
 
-.sidebar .nav-link {
+.sidebar .nav-link,
+.sidebar .major-category {
     font-weight: 500;
-    color: #007bff;
     padding: 12px 15px;
     border-radius: 8px;
     text-decoration: none;
-    transition: background-color 0.3s ease;
     display: block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar .nav-link {
+    color: #007bff;
 }
 
 .sidebar .nav-link.active,
@@ -52,26 +56,11 @@ body {
 
 /* 사이드바 대분류 버튼 스타일 수정 */
 .sidebar .major-category {
-    font-weight: bold;
     color: #d6e9fd;
     background-color: #2a6db4;
-    padding: 8px 12px;
-    font-size: 15px;
-    border-radius: 8px;
-    text-decoration: none;
-    display: block;
-    transition: background-color 0.3s ease, color 0.3s ease;
-
-    width: 75px;
-    /* 고정된 너비 */
-    min-width: 50px;
-    /* 최소 너비 */
-    max-width: 100px;   
-    /* 최대 너비 */
-    flex: none;
-    /* flexbox 영향 방지 */
-    word-break: break-all;
-    overflow-wrap: break-word;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 6px;
 }
 
 .sidebar .major-category:hover {
