@@ -39,7 +39,7 @@ def search_view(request):
         "results": results,  # 검색 결과
         "query": query,  # 검색어
     }
-    return render(request, "search.html", context)
+    return render(request, "index.html", context)
 
 @csrf_exempt  # You might want to add CSRF protection in production
 def detail_action(request):
