@@ -106,4 +106,86 @@ document.addEventListener('DOMContentLoaded', function () {
     // 예를 들어, 추가 페이지로 이동:
     // window.location.href = "{% url 'add_view' %}";
   });
+
+  // AJAX 요청을 통해 검색 결과 가져오기
+  const searchForm = document.querySelector('form');
+  searchForm.addEventListener('submit', function (event) {
+    event.preventDefault(); // 기본 폼 제출 방지
+    const query = document.getElementById('search-input').value;
+
+    fetch(`?q=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest' // AJAX 요청임을 서버에 알림
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      // 검색 결과 처리
+      const resultBody = document.getElementById('result-body');
+      if (resultBody) { // resultBody가 null이 아닌지 확인
+        resultBody.innerHTML = ''; // 기존 결과 초기화
+
+        if (data.results.length > 0) {
+          data.results.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-code', row.code);
+            tr.setAttribute('data-name', row.name);
+            tr.setAttribute('data-category', row.categories.map(c => c.name).join(', '));
+            tr.setAttribute('data-details', row.split_details.join(' | '));
+            tr.innerHTML = `
+              <td class="col-code">${row.code}</td>
+              <td class="col-name">${row.name}</td>
+              <td class="col-category">
+                ${row.categories.map(category => `<button class="btn btn-sm category-btn" type="button" style="background-color: ${category.color}; color: white;" disabled>${category.name}</button>`).join('')}
+              </td>
+              <td class="col-details">
+                ${row.split_details.map(detail => `<button class="btn btn-sm btn-outline-secondary detail-btn" type="button" data-detail="${detail}">${detail}</button>`).join('')}
+              </td>
+            `;
+            resultBody.appendChild(tr);
+          });
+        } else {
+          resultBody.innerHTML = '<tr><td colspan="4" class="text-center">검색 결과가 없습니다.</td></tr>';
+        }
+      } else {
+        console.error("Element with id 'result-body' not found");
+      }
+    })
+    .catch(error => console.error('Error fetching search results:', error));
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const sidebar = document.getElementById('sidebar');
+  const toggleButton = document.getElementById('toggle-sidebar');
+  const sidebarIcon = document.getElementById('sidebar-icon');
+  const mainContent = document.getElementById('main-content');
+
+  // 페이지 로드 시 localStorage에서 상태를 불러오기
+  const isCollapsed = localStorage.getItem('sidebar-collapsed');
+  if (isCollapsed === 'true') {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('expanded');
+    sidebarIcon.classList.remove('fa-bars');
+    sidebarIcon.classList.add('fa-chevron-right');
+  }
+
+  // 버튼 클릭 시 사이드바 상태 토글 및 저장
+  toggleButton.addEventListener('click', function () {
+    sidebar.classList.toggle('collapsed');
+    
+    // 메인 컨텐츠 너비 조정
+    if (sidebar.classList.contains('collapsed')) {
+      mainContent.classList.add('expanded');
+      sidebarIcon.classList.remove('fa-bars');
+      sidebarIcon.classList.add('fa-chevron-right');
+      localStorage.setItem('sidebar-collapsed', 'true'); // 상태 저장
+    } else {
+      mainContent.classList.remove('expanded');
+      sidebarIcon.classList.remove('fa-chevron-right');
+      sidebarIcon.classList.add('fa-bars');
+      localStorage.setItem('sidebar-collapsed', 'false'); // 상태 저장
+    }
+  });
 });
