@@ -1,0 +1,78 @@
+/* 리스트 점 제거 */
+.sidebar ul {
+    list-style-type: none;
+}
+
+.sidebar {
+    background-color: #f3f4f7;
+    height: 100vh;
+    border-right: 1px solid #ddd;
+    overflow-y: scroll;
+}
+
+/* 사이드바 타이틀 및 항목 스타일 수정 */
+.category-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #374b61;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.sidebar .nav-link,
+.sidebar .major-category {
+    font-weight: 500;
+    padding: 12px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar .nav-link {
+    color: #007bff;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    background-color: #d6eaff;
+    color: #0056b3;
+}
+
+.sidebar .major-category {
+    font-weight: 500;
+    color: #d6e9fd;
+    background-color: #2a6db4;
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar .major-category:hover {
+    background-color: #2d4a6a;
+    color: #d6e9fd;
+}
+
+/* 추가 버튼*/
+#add-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#add-button:hover {
+    background-color: #5a6268;
+}
