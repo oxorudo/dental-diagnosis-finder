@@ -63,3 +63,4 @@ def add_view(request):
     # 추가 로직 구현
     return render(request, "add_template.html")
 
+# 이건 새로운 브랜치야
