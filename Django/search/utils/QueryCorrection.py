@@ -38,7 +38,7 @@ class HangulSearch:
 
     def search_with_contains(self, data, query): # 보정 전 검색어 포함 여부 검색, 공백 무시하고 검색
         normalized_query = re.sub(r'\s+', '', query)
-        return [item for item in data if normalized_query in re.sub(r'\s+', '', item)]
+        return [item for item in data if normalized_query in re.sub(r'\s+', '', item).upper()] # 데이터 전체 대문자로 바꿔서 검색
 
     def search_with_partial_and_correction(self, data, query, threshold=60): # 유사한 검색어들 반환
         matches = process.extract(query, data, scorer=fuzz.partial_ratio, limit=15)
@@ -54,52 +54,36 @@ class HangulSearch:
     def search_with_options(self, data, query): # 검색 옵션
 
         if self.is_chosung(query): # 초성 검색어면 초성 검색 모드, 소문자 영어 검색어면 한영 변환 검색
+            print('초성 검색 실행')
             return self.search_with_chosung_inclusion(data, query)
 
         if all(char.isalpha() and char.islower() for char in query):
+            print('한영 변환 검색 실행')
             query = unicode.join_jamos(self.convert_eng_to_kor(query)) # 한국어 풀어쓰기 해제
+            print(query)
+            return self.search_with_contains(self.df.apply(lambda col: col.map(str)).values.flatten(), query)
 
+        print('유사도 검색 실행')
         return self.search_with_partial_and_correction(data, query) 
 
     def search_df_with_options(self, query): # 보정 전에 순수 검색어로 검색 후 결과 없으면 보정 검색하는 옵션
-        if query.isalpha() == True:
-            query = query.upper()
+
+        query = query.upper()
 
         self.df = self.df.apply(lambda col: col.map(lambda x: self.clean_text(str(x))))
         
         results = self.search_with_contains(self.df.apply(lambda col: col.map(str)).values.flatten(), query)
         if not results:
-            if query.isalpha() == True:
-                query = query.lower()
+            query = query.lower()
+
             print('보정 후 검색') 
             print(query)
             for column in self.df.columns:
                 col_results = self.search_with_options(self.df[column].apply(str).tolist(), query)
+                print(col_results)
                 if col_results:
                     results.extend(col_results)
 
         unique_results = set(results)
         return self.df[self.df.apply(lambda row: any(str(row[col]) in unique_results for col in self.df.columns), axis=1)]
-
-    # def search_df_with_options(self, query): # 포함 검색과 보정 검색 동시에 수행
-    #     self.df = self.df.apply(lambda col: col.map(lambda x: self.clean_text(str(x))))
-
-    #     results = set()
-    #     query_upper = query.upper()
-    #     query_lower = query.lower()
-
-    #     # 일반적인 검색과 초성/보정 검색을 동시에 수행
-    #     normal_results = self.search_with_contains(self.df.apply(lambda col: col.map(str)).values.flatten(), query_upper)
-    #     corrected_results = []
-
-    #     for column in self.df.columns:
-    #         col_results = self.search_with_options(self.df[column].apply(str).tolist(), query_lower)
-    #         if col_results:
-    #             corrected_results.extend(col_results)
-
-    #     # 중복을 제거하며 결과를 합칩니다.
-    #     results.update(normal_results)
-    #     results.update(corrected_results)
-
-    #     return self.df[self.df.apply(lambda row: any(str(row[col]) in results for col in self.df.columns), axis=1)]
-
+    
