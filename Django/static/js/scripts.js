@@ -97,15 +97,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // "추가" 버튼 클릭 이벤트
-  const addButton = document.getElementById('add-button');
-  addButton.addEventListener('click', function (event) {
-    event.preventDefault();
-    // 여기에 추가 버튼 클릭 시의 행동을 정의하세요.
-    alert('추가 버튼이 클릭되었습니다!');
-    // 예를 들어, 추가 페이지로 이동:
-    // window.location.href = "{% url 'add_view' %}";
-  });
+  // // "추가" 버튼 클릭 이벤트
+  // const addButton = document.getElementById('add-button');
+  // addButton.addEventListener('click', function (event) {
+  //   event.preventDefault();
+  //   // 여기에 추가 버튼 클릭 시의 행동을 정의하세요.
+  //   alert('추가 버튼이 클릭되었습니다!');
+  //   // 예를 들어, 추가 페이지로 이동:
+  //   // window.location.href = "{% url 'add_view' %}";
+  // });
 
   // AJAX 요청을 통해 검색 결과 가져오기
   const searchForm = document.querySelector('form');

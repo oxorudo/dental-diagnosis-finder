@@ -3,11 +3,12 @@
     list-style-type: none;
 }
 
-.sidebar {
+#sidebar {
     background-color: #f3f4f7;
     height: 100vh;
     border-right: 1px solid #ddd;
     overflow-y: scroll;
+    width: 400px;
 }
 
 /* 사이드바 타이틀 및 항목 스타일 수정 */
@@ -15,7 +16,7 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: #374b61;
-    margin-top: 30px;
+    margin-top: 15px;
     margin-bottom: 15px;
     display: block;
 }
@@ -75,4 +76,25 @@
 
 #add-button:hover {
     background-color: #5a6268;
+}
+
+/* 사이드바가 닫혔을 때 숨길 요소 추가 */
+#sidebar.collapsed .category-title,
+#sidebar.collapsed .nav {
+    display: none; /* 추가 */
+}
+
+#toggle-sidebar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease;
+    top: 11px;
+    right: 5px;
 }
