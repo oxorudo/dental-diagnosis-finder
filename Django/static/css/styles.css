@@ -28,6 +28,18 @@ button.btn-outline-secondary,
     font-size: 14px;
 }
 
+/* 테이블 행 호버 시 배경색 변경 */
+.table tbody tr:hover {
+    outline: 2px solid var(--primary-color); /* 아웃라인 추가 */
+    background-color: transparent; /* 배경색 제거 */
+    cursor: pointer;
+}
+
+/* 테이블의 첫 번째 행에 대한 스타일 추가 */
+.table thead tr {
+    border-bottom: 2px solid var(--primary-color); /* 헤더 아래에 경계선 추가 */
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;
