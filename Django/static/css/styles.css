@@ -32,7 +32,7 @@ button.btn-outline-secondary,
 .table tbody tr:hover {
     outline: 2px solid var(--primary-color); /* 아웃라인 추가 */
     background-color: transparent; /* 배경색 제거 */
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 /* 테이블의 첫 번째 행에 대한 스타일 추가 */
@@ -48,7 +48,7 @@ button.btn-outline-secondary,
 
 .table tbody tr:hover {
     background-color: #f1f7ff;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .table-body-wrapper {
