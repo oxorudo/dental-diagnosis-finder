@@ -53,58 +53,58 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // AJAX 요청을 통해 검색 결과 가져오기
-   // AJAX 요청을 통해 검색 결과 가져오기
-    const searchForm = document.querySelector('form');
-    searchForm.addEventListener('submit', function (event) {
-        event.preventDefault(); // 기본 폼 제출 방지
-        const query = document.getElementById('search-input').value;
+  const searchForm = document.querySelector('form');
+  searchForm.addEventListener('submit', function (event) {
+      event.preventDefault(); // 기본 폼 제출 방지
+      const query = document.getElementById('search-input').value;
 
-        fetch(`?q=${encodeURIComponent(query)}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest' // AJAX 요청임을 서버에 알림
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // 검색 결과 처리
-            const resultBody = document.getElementById('result-body');
-            if (resultBody) {
-                resultBody.innerHTML = ''; // 기존 결과 초기화
+      fetch(`?q=${encodeURIComponent(query)}`, {
+          method: 'GET',
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest' // AJAX 요청임을 서버에 알림
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          // 검색 결과 처리
+          const resultBody = document.getElementById('result-body');
+          if (resultBody) {
+              resultBody.innerHTML = ''; // 기존 결과 초기화
 
-                if (data.results.length > 0) {
-                    data.results.forEach(row => {
-                        const tr = document.createElement('tr');
-                        tr.setAttribute('data-code', row.code);
-                        tr.setAttribute('data-name', row.name);
+              if (data.results.length > 0) {
+                  data.results.forEach((row, index) => { // 인덱스 추가
+                      const tr = document.createElement('tr');
+                      tr.setAttribute('data-code', row.code);
+                      tr.setAttribute('data-name', row.name);
 
-                        // 카테고리가 있으면 표시, 없으면 공백
-                        const categoriesHTML = row.categories.length > 0 ? 
-                            row.categories.map(category => 
-                                `<button class="btn btn-sm category-btn" type="button" style="background-color: ${category.color}; color: white;" disabled>${category.name}</button>`
-                            ).join('') : 'N/A';
+                      // 카테고리가 있으면 표시, 없으면 공백
+                      const categoriesHTML = row.categories.length > 0 ? 
+                          row.categories.map(category => 
+                              `<button class="btn btn-sm category-btn" type="button" style="background-color: ${category.color}; color: white;" disabled>${category.name}</button>`
+                          ).join('') : 'N/A';
 
-                        // 세부 청구 항목이 있으면 표시, 없으면 공백
-                        const detailsHTML = row.split_details.length > 0 ? 
-                            row.split_details.map(detail => 
-                                `<button class="btn btn-sm btn-outline-secondary detail-btn" type="button" data-detail="${detail}">${detail}</button>`
-                            ).join('') : 'N/A';
+                      // 세부 청구 항목이 있으면 표시, 없으면 공백
+                      const detailsHTML = row.split_details.length > 0 ? 
+                          row.split_details.map(detail => 
+                              `<button class="btn btn-sm btn-outline-secondary detail-btn" type="button" data-detail="${detail}">${detail}</button>`
+                          ).join('') : 'N/A';
 
-                        tr.innerHTML = `
-                            <td class="col-code">${row.code}</td>
-                            <td class="col-name">${row.name}</td>
-                            <td class="col-category">${categoriesHTML}</td>
-                            <td class="col-details">${detailsHTML}</td>
-                        `;
-                        resultBody.appendChild(tr);
-                    });
-                } else {
-                    resultBody.innerHTML = '<tr><td colspan="4" class="text-center">검색 결과가 없습니다.</td></tr>';
-                }
-            } else {
-                console.error("Element with id 'result-body' not found");
-            }
-        })
-        .catch(error => console.error('Error fetching search results:', error));
-    });
+                      tr.innerHTML = `
+                          <td class="col-index">${index + 1}</td> <!-- 인덱스 추가 -->
+                          <td class="col-code">${row.code}</td>
+                          <td class="col-name">${row.name}</td>
+                          <td class="col-category">${categoriesHTML}</td>
+                          <td class="col-details">${detailsHTML}</td>
+                      `;
+                      resultBody.appendChild(tr);
+                  });
+              } else {
+                  resultBody.innerHTML = '<tr><td colspan="5" class="text-center">검색 결과가 없습니다.</td></tr>'; // 열 수 조정
+              }
+          } else {
+              console.error("Element with id 'result-body' not found");
+          }
+      })
+      .catch(error => console.error('Error fetching search results:', error));
+  });
 });
