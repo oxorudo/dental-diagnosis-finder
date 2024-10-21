@@ -7,28 +7,48 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  // 대분류 및 중분류 링크에 클릭 이벤트 처리
   const majorLinks = document.querySelectorAll('.major-category');
-  const middleLinks = document.querySelectorAll('.middle-category');
-
-  [...majorLinks, ...middleLinks].forEach(link => {
+  majorLinks.forEach(link => {
     link.addEventListener('click', function (event) {
       event.preventDefault();
-      toggleList(this); // 단일 클릭 시 토글만 수행
+      // 더블 클릭이면 토글 안 함
+      if (event.detail === 1) { // 클릭이 단일 클릭인 경우만
+        toggleList(this);
+      }
     });
 
     link.addEventListener('dblclick', function (event) {
       event.preventDefault();
-      handleDoubleClick(this); // 더블 클릭 시 검색 버튼 클릭
+      handleDoubleClick(this); // 더블 클릭 핸들러 호출
     });
   });
 
-  // 더블 클릭 시 입력창에 코드 전달 후 검색 버튼 클릭
-  function handleDoubleClick(link) {
-    setSearchInputAndSubmit(link);
-  }
+  const middleLinks = document.querySelectorAll('.middle-category');
+  middleLinks.forEach(link => {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      // 더블 클릭이면 토글 안 함
+      if (event.detail === 1) {
+        toggleList(this);
+      }
+    });
 
-  // 검색창에 코드 입력 후 검색 버튼 클릭
+    link.addEventListener('dblclick', function (event) {
+      event.preventDefault();
+      handleDoubleClick(this); // 더블 클릭 핸들러 호출
+    });
+  });
+
+  // 항목 클릭 시 입력창에 코드 전달 및 검색
+  const links = document.querySelectorAll('.major-category, .middle-category, .sub-category');
+  links.forEach(link => {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      setSearchInputAndSubmit(this);
+    });
+  });
+
+  // 더블 클릭 핸들러 함수
   function setSearchInputAndSubmit(link) {
     // 코드만 가져오기 (병명 부분을 제외하고 가져오기)
     const nameParts = link.innerText.trim().split('-'); // '-'로 분리
@@ -41,14 +61,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('search-input');
     searchInput.value = cleanedName; // 검색창에 코드 입력
 
-    const searchButton = document.querySelector('.search-btn'); // 검색 버튼 찾기
+    const searchButton = document.querySelector('.search-btn'); // 클래스로 검색 버튼 선택
     if (searchButton) {
-      searchButton.click(); // 더블 클릭 시 검색 버튼 클릭
+      searchButton.click(); // 버튼 클릭
     } else {
       console.error("Search button not found!");
     }
   }
-  // 검색 결과 클릭 시 상세 정보 업데이트
+
+  // 검색 결과 업데이트
   const rows = document.querySelectorAll('#result-body tr');
   rows.forEach(row => {
     row.addEventListener('click', function () {
@@ -66,11 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const detailsArray = details.split(' | ');
       let buttonsHTML = '';
       detailsArray.forEach(detail => {
-        if (detail === '없음') {
-          buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" disabled>${detail}</button> `;
-        } else {
-          buttonsHTML += `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button> `;
-        }
+        buttonsHTML += detail === '없음'
+          ? `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" disabled>${detail}</button>`
+          : `<button class="btn btn-outline-secondary btn-sm detail-btn" type="button" data-detail="${detail}">${detail}</button>`;
       });
 
       // Update detail content
@@ -93,8 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
   addButton.addEventListener('click', function (event) {
     event.preventDefault();
     alert('추가 버튼이 클릭되었습니다!');
-    // 예를 들어, 추가 페이지로 이동:
-    // window.location.href = "{% url 'add_view' %}";
   });
 
   // AJAX 요청을 통해 검색 결과 가져오기
@@ -111,9 +128,8 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then(response => response.json())
       .then(data => {
-        // 검색 결과 처리
         const resultBody = document.getElementById('result-body');
-        if (resultBody) { // resultBody가 null이 아닌지 확인
+        if (resultBody) {
           resultBody.innerHTML = ''; // 기존 결과 초기화
 
           if (data.results.length > 0) {
