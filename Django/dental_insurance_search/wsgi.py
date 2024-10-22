@@ -1,5 +1,5 @@
 """
-WSGI config for dental_insurance_searchproject project.
+WSGI config for dental_insurance_search project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -12,7 +12,7 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "dental_insurance_searchproject.settings"
+    "DJANGO_SETTINGS_MODULE", "dental_insurance_search.settings"
 )
 
 application = get_wsgi_application()
